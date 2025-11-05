@@ -23,7 +23,7 @@ class Users(UserMixin, db.Model):
 
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:password@localhost:3306/testing"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:password@localhost:3306/testing"
 app.config['SECRET_KEY'] = os.urandom(24)
 
 db.init_app(app)
@@ -96,10 +96,29 @@ def register():
 @app.route('/protected')
 @login_required
 def protected():
-    return f'''✅ Logged in as: {current_user.username} <br> <a href="{url_for('logout')}">Logout</a>'''
+    return render_template('landing.html')
+    #return f'''✅ Logged in as: {current_user.username} <br> <a href="{url_for('logout')}">Logout</a>'''
+
+@app.route('/employees')
+@login_required
+def employees():
+    return render_template('employees.html')
+
+@app.route('/vendors')
+@login_required
+def vendors():
+    return render_template('vendors.html')
+
+@app.route('/inventory')
+@login_required
+def inventory():
+    return render_template('inventory.html')
+
+    
 
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     #return 'Logged out'
