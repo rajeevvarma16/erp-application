@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from datetime import datetime, date
 import os
 import pymysql
 pymysql.install_as_MySQLdb()
@@ -14,13 +15,48 @@ db = SQLAlchemy()
 app = Flask(__name__)
 class Users(UserMixin, db.Model):
     __tablename__ = 'users'
-
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
 
 
+class Employees(db.Model):
+    __tablename__ = 'employees'
+
+    id = db.Column(db.Integer, primary_key=True)
+    employee_name = db.Column(db.String(100), nullable=False)
+    department = db.Column(db.String(100), nullable=False)
+    joining_date = db.Column(db.Date, nullable=False, default=lambda: date.today())
+    salary = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+
+class Customers(db.Model):
+    __tablename__ = 'customers'
+    id = db.Column(db.Integer, primary_key=True)
+    customer_name = db.Column(db.String(100))
+    phone = db.Column(db.String(20))
+    address = db.Column(db.String(800))
+    status = db.Column(db.String(50))
+
+class Vendors(db.Model):
+    __tablename__ = 'vendors'
+    id = db.Column(db.Integer, primary_key=True)
+    vendor_name = db.Column(db.String(100))
+    contact_person = db.Column(db.String(100))
+    phone = db.Column(db.String(20))
+    category = db.Column(db.String(100))
+
+class Inventory(db.Model):
+    __tablename__ = 'inventory'
+    id = db.Column(db.Integer, primary_key=True)
+    item_name = db.Column(db.String(100))
+    quantity = db.Column(db.Integer)
+    price = db.Column(db.Integer)
+    unit = db.Column(db.String(20))
+
+
+    
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:password@localhost:3306/testing"
@@ -99,23 +135,73 @@ def protected():
     return render_template('landing.html')
     #return f'''✅ Logged in as: {current_user.username} <br> <a href="{url_for('logout')}">Logout</a>'''
 
-@app.route('/employees')
+@app.route('/employees', methods=['GET', 'POST'])
 @login_required
 def employees():
-    return render_template('employees.html')
+    new_employee = Employees(
+            employee_name="Rajeev",
+            status="Active",
+            department="IT",
+            salary=70000,
+            joining_date=datetime.strptime("2023-01-15", "%Y-%m-%d").date()
+        )
+    db.session.add(new_employee)
+    db.session.commit()
+
+    all_employees = Employees.query.all()
+
+    return render_template('employees.html', employees=all_employees)
 
 @app.route('/vendors')
 @login_required
 def vendors():
-    return render_template('vendors.html')
+
+    dummy = Vendors(
+        vendor_name="ABC Suppliers",
+        contact_person="Ramesh",
+        phone="9876001234",
+        category="Hardware"
+    )
+    db.session.add(dummy)
+    db.session.commit()
+
+    all_vendors = Vendors.query.all()
+    return render_template('vendors.html', vendors=all_vendors)
+    #return render_template('vendors.html')
 
 @app.route('/inventory')
 @login_required
 def inventory():
-    return render_template('inventory.html')
+    dummy = Inventory(
+        item_name="Cement Bag",
+        quantity=50,
+        price=350,
+        unit="Bags"
+    )
+    db.session.add(dummy)
+    db.session.commit()
 
-    
+    all_items = Inventory.query.all()
+    return render_template('inventory.html', inventory=all_items)
 
+    #return render_template('inventory.html')
+
+@app.route('/customers')
+@login_required
+def customers():
+
+    new_customer = Customers(
+        customer_name="John Enterprises",
+        phone="9876543210",
+        address="Hyderabad, Telangana",
+        status="Active"
+        )
+    db.session.add(new_customer)
+    db.session.commit()
+
+    all_customers = Customers.query.all()
+
+    return render_template('customers.html', customers=all_customers)
 
 @app.route('/logout')
 @login_required

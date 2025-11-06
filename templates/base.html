@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}ERP App{% endblock %}</title>
+  <style>
+
+    table {
+        border-collapse: collapse;
+        width: 90%;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+
+    th {
+        background-color: #333;
+        color: white;
+    }
+    tr:nth-child(even) {
+        background-color: #f7f7f7;
+    }
+
+    tr:hover {background-color: #D6EEEE;}
+
+
+
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333333;
+      display: flex;
+      position: fixed;
+      top: 0;
+      width: 100%;
+    }
+    ul li a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+    ul li a:hover {
+      background-color: #111111;
+    }
+    body { margin-top: 60px; font-family: sans-serif; }
+  </style>
+</head>
+<body>
+  <!-- 🔹 Common header -->
+  <ul>
+    <li><a href="{{ url_for('protected') }}">Home</a></li>
+    <li><a href="{{ url_for('inventory') }}">Inventory</a></li>
+    <li><a href="{{ url_for('vendors') }}">Vendors</a></li>
+    <li><a href="{{ url_for('employees') }}">Employees</a></li>
+    <li><a href="{{ url_for('customers') }}">Customers</a></li>
+    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+  </ul>
+
+  <!-- 🔹 Page-specific content -->
+  {% block content %}{% endblock %}
+</body>
+</html>

@@ -1,11 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>These are my vendors</h1>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Vendors{% endblock %}
+
+{% block content %}
+<h2>this is the vendors page welcome </h2>
+<p>Welcome to the vendorss section.</p>
+
+
+<table>
+    <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Vendor Name</th>
+          <th>Contact Person</th>
+          <th>Phone</th>
+          <th>Category</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+        {% for vendor in vendors %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ vendor.vendor_name }}</td>
+            <td>{{ vendor.contact_person }}</td>
+            <td>{{ vendor.phone }}</td>
+            <td>{{ vendor.category }}</td>
+        </tr>
+    
+        {% endfor %}
+    </tbody>
+      </table>
+
+
+{% endblock %}

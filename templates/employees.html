@@ -1,11 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Hi these are my employees</h1>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Employees Management{% endblock %}
+
+{% block content %}
+<h2>this is the employees page</h2>
+<p>Welcome to the employee section.</p>
+
+<table>
+<thead>
+    <tr>
+      <th>S.No</th>
+      <th>Name</th>
+      <th>Department</th>
+      <th>Joining Date</th>
+      <th>Salary</th>
+      <th>Status</th>
+      
+    </tr>
+</thead>
+<tbody>
+    
+    {% for emp in employees %}
+    <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ emp.employee_name }}</td>
+        <td>{{ emp.department }}</td>
+        <td>{{ emp.joining_date.strftime('%d %b, %Y') }}</td>
+        <td>{{ emp.salary }}</td>
+        <td>{{ emp.status }}</td>
+    </tr>
+
+    {% endfor %}
+</tbody>
+  </table>
+
+
+{% endblock %}

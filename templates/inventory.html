@@ -1,11 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Hi this is my inventory</h1>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Inventory Management{% endblock %}
+
+{% block content %}
+<h2>Inventory Page</h2>
+<p>Welcome to the inventory section.</p>
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>S.No</th>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Unit</th>
+            <th>Price (₹)</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+        {% for item in inventory %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ item.item_name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unit }}</td>
+            <td>{{ item.price }}</td>
+        </tr>
+    
+        {% endfor %}
+    </tbody>
+      </table>
+
+
+{% endblock %}

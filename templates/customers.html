@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Customers{% endblock %}
+
+{% block content %}
+<h2>this is the customers page</h2>
+<p>Welcome to the customer section.</p>
+
+
+<table>
+    <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Address</th>
+          <th>Status</th>  
+        </tr>
+    </thead>
+    <tbody>
+        
+        {% for customer in customers %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ customer.customer_name }}</td>
+            <td>{{ customer.phone }}</td>
+            <td>{{ customer.address }}</td>
+            <td>{{ customer.status }}</td>
+        </tr>
+    
+        {% endfor %}
+    </tbody>
+      </table>
+    
+
+
+{% endblock %}
