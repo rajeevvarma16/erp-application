@@ -1,4 +1,4 @@
-# Flask Authentication System
+# Flask ERP System
 
 A secure login/register/logout app with:
 - Password hashing (Werkzeug)
