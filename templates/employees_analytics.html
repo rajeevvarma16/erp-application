@@ -2,28 +2,69 @@
 {% block title %}Employee Analytics{% endblock %}
 
 {% block content %}
-<h2>Employee Analytics</h2>
+<h2 style="margin-bottom:20px;">Employee Analytics</h2>
 
-<p>Total Employees: {{ total }}</p>
-<p>Active: {{ active }}</p>
-<p>Inactive: {{ inactive }}</p>
+<!-- KPI CARDS -->
+<div style="display:flex; gap:20px; margin-bottom:20px;">
+    <div style="flex:1;background:#fff;padding:20px;border-radius:10px;">
+        <h3>Total Employees</h3>
+        <h2>{{ total }}</h2>
+    </div>
+    <div style="flex:1;background:#fff;padding:20px;border-radius:10px;">
+        <h3>Active</h3>
+        <h2>{{ active }}</h2>
+    </div>
+    <div style="flex:1;background:#fff;padding:20px;border-radius:10px;">
+        <h3>Inactive</h3>
+        <h2>{{ inactive }}</h2>
+    </div>
+</div>
 
-<p>Average Salary: ₹{{ avg_salary|round(2) }}</p>
-<p>Highest Salary: ₹{{ highest_salary }}</p>
-<p>Lowest Salary: ₹{{ lowest_salary }}</p>
+<!-- CHARTS -->
+<div style="display:flex; gap:20px; margin-bottom:20px;">
+    <div id="deptChart" style="flex:1;background:#fff;padding:20px;border-radius:10px;"></div>
+    <div id="empMonthlyChart" style="flex:2;background:#fff;padding:20px;border-radius:10px;"></div>
+</div>
 
-<h3>Employees Per Department</h3>
-<ul>
-{% for dept, count in dept_counts %}
-    <li>{{ dept }}: {{ count }}</li>
-{% endfor %}
-</ul>
+<!-- LATEST EMPLOYEES -->
+<div style="background:#fff;padding:20px;border-radius:10px;">
+    <h3>Recent Employees</h3>
+    <ul>
+        {% for e in latest %}
+        <li>{{ e.employee_name }} – {{ e.department }}</li>
+        {% endfor %}
+    </ul>
+</div>
 
-<h3>New Employees This Month</h3>
-<ul>
-{% for emp in recent %}
-    <li>{{ emp.employee_name }} ({{ emp.joining_date }})</li>
-{% endfor %}
-</ul>
+<script>
+// Injected data
+var deptLabels = JSON.parse('{{ dept_labels | tojson | safe }}');
+var deptCounts = JSON.parse('{{ dept_counts | tojson | safe }}');
+
+var monthLabels = JSON.parse('{{ month_labels | tojson | safe }}');
+var monthCounts = JSON.parse('{{ month_counts | tojson | safe }}');
+
+// Department Bar Chart
+new ApexCharts(document.querySelector("#deptChart"), {
+    chart: { type: 'bar', height: 300 },
+    series: [{ 
+        name: 'Employees', 
+        data: deptCounts 
+    }],
+    xaxis: { categories: deptLabels },
+    colors: ['#00897B']
+}).render();
+
+// Monthly Hiring Line Chart
+new ApexCharts(document.querySelector("#empMonthlyChart"), {
+    chart: { type: 'line', height: 300 },
+    series: [{
+        name: 'New Employees',
+        data: monthCounts
+    }],
+    xaxis: { categories: monthLabels },
+    colors: ['#7E57C2']
+}).render();
+</script>
 
 {% endblock %}

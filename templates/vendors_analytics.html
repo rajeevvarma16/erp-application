@@ -2,24 +2,55 @@
 {% block title %}Vendor Analytics{% endblock %}
 
 {% block content %}
-<h2>Vendor Analytics</h2>
+<h2 style="margin-bottom:20px;">Vendor Analytics</h2>
 
-<p>Total Vendors: {{ total }}</p>
+<div style="display:flex; gap:20px; margin-bottom:20px;">
+    <div style="flex:1;background:#fff;padding:20px;border-radius:10px;">
+        <h3>Total Vendors</h3>
+        <h2>{{ total_vendors }}</h2>
+    </div>
+    <div style="flex:1;background:#fff;padding:20px;border-radius:10px;">
+        <h3>Missing Phone</h3>
+        <h2>{{ missing_phone }}</h2>
+    </div>
+</div>
 
-<p>Vendors Missing Phone Numbers: {{ missing_phone }}</p>
+<div style="display:flex; gap:20px;">
+    <div id="vendorCatChart" style="flex:2;background:#fff;padding:20px;border-radius:10px;"></div>
+    <div id="vendorPhoneChart" style="flex:1;background:#fff;padding:20px;border-radius:10px;"></div>
+</div>
 
-<h3>Vendors Per Category</h3>
-<ul>
-{% for cat, count in category_breakdown %}
-    <li>{{ cat }}: {{ count }}</li>
-{% endfor %}
-</ul>
+<div style="background:#fff;padding:20px;border-radius:10px;margin-top:20px;">
+    <h3>Recent Vendors</h3>
+    <ul>
+        {% for v in latest %}
+        <li>{{ v.vendor_name }} – {{ v.category }}</li>
+        {% endfor %}
+    </ul>
+</div>
 
-<h3>Recently Added Vendors</h3>
-<ul>
-{% for v in recent %}
-    <li>{{ v.vendor_name }} - {{ v.category }}</li>
-{% endfor %}
-</ul>
+<script>
+var catLabels = JSON.parse('{{ cat_labels | tojson | safe }}');
+var catCounts = JSON.parse('{{ cat_counts | tojson | safe }}');
+
+var missingPhone = {{ missing_phone }};
+var withPhone = {{ with_phone }};
+
+// Vendors per Category
+new ApexCharts(document.querySelector("#vendorCatChart"), {
+    chart: { type: 'bar', height: 300 },
+    series: [{ name: 'Vendors', data: catCounts }],
+    xaxis: { categories: catLabels },
+    colors: ['#3949AB']
+}).render();
+
+// Phone completeness donut
+new ApexCharts(document.querySelector("#vendorPhoneChart"), {
+    chart: { type: 'donut', height: 300 },
+    series: [missingPhone, withPhone],
+    labels: ['Missing Phone', 'With Phone'],
+    colors: ['#C62828', '#2E7D32']
+}).render();
+</script>
 
 {% endblock %}

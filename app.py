@@ -235,20 +235,43 @@ def delete_employee(id):
 @app.route('/employees/analytics')
 @login_required
 def employees_analytics():
-    emp_count = Employees.query.count()
+    total = Employees.query.count()
 
-    avg_salary = db.session.query(db.func.avg(Employees.salary)).scalar() or 0
-
-    dept_counts = Employees.query.with_entities(
+    # Department breakdown
+    dept_data = Employees.query.with_entities(
         Employees.department, db.func.count()
     ).group_by(Employees.department).all()
+    dept_labels = [d[0] for d in dept_data]
+    dept_counts = [d[1] for d in dept_data]
+
+    # Status breakdown
+    active = Employees.query.filter_by(status="Active").count()
+    inactive = Employees.query.filter_by(status="Inactive").count()
+
+    # Monthly hiring
+    month_data = db.session.query(
+        db.func.month(Employees.joining_date),
+        db.func.count()
+    ).group_by(db.func.month(Employees.joining_date)).all()
+
+    month_labels = [f"Month {m[0]}" for m in month_data]
+    month_counts = [m[1] for m in month_data]
+
+    # Latest employees
+    latest = Employees.query.order_by(Employees.id.desc()).limit(10).all()
 
     return render_template(
         'employees_analytics.html',
-        emp_count=emp_count,
-        avg_salary=avg_salary,
-        dept_counts=dept_counts
+        total=total,
+        active=active,
+        inactive=inactive,
+        dept_labels=dept_labels,
+        dept_counts=dept_counts,
+        month_labels=month_labels,
+        month_counts=month_counts,
+        latest=latest
     )
+
 
 
 
@@ -306,25 +329,42 @@ def delete_vendor(id):
 @app.route('/vendors/analytics')
 @login_required
 def vendors_analytics():
-    total = Vendors.query.count()
+    total_vendors = Vendors.query.count()
 
-    category_breakdown = Vendors.query.with_entities(
+    # Category breakdown
+    cat_data = Vendors.query.with_entities(
         Vendors.category, db.func.count()
     ).group_by(Vendors.category).all()
 
-    recent = Vendors.query.order_by(Vendors.id.desc()).limit(5).all()
+    cat_labels = [row[0] for row in cat_data]
+    cat_counts = [row[1] for row in cat_data]
 
+    # Vendors with missing phone
     missing_phone = Vendors.query.filter(
         (Vendors.phone == None) | (Vendors.phone == "")
     ).count()
+    with_phone = total_vendors - missing_phone
+
+    # Latest vendors
+    latest = Vendors.query.order_by(Vendors.id.desc()).limit(10).all()
+
+    # Monthly vendors - using ID created order (no date column)
+    # If you want REAL monthly vendors, add created_at column.
+    month_labels = []
+    month_counts = []
 
     return render_template(
         'vendors_analytics.html',
-        total=total,
-        category_breakdown=category_breakdown,
-        recent=recent,
-        missing_phone=missing_phone
+        total_vendors=total_vendors,
+        cat_labels=cat_labels,
+        cat_counts=cat_counts,
+        missing_phone=missing_phone,
+        with_phone=with_phone,
+        latest=latest,
+        month_labels=month_labels,
+        month_counts=month_counts
     )
+
 
 
 # --------------------------------------------------
@@ -388,22 +428,40 @@ def inventory_analytics():
         db.func.sum(Inventory.quantity * Inventory.price)
     ).scalar() or 0
 
-    low_stock = Inventory.query.filter(Inventory.quantity < 10).all()
+    # Low stock (< 20)
+    low_stock = Inventory.query.filter(Inventory.quantity < 20).all()
+    low_labels = [i.item_name for i in low_stock]
+    low_values = [i.quantity for i in low_stock]
 
-    out_of_stock = Inventory.query.filter(Inventory.quantity == 0).all()
-
-    highest_value_items = Inventory.query.order_by(
+    # Highest value items
+    top = Inventory.query.order_by(
         (Inventory.quantity * Inventory.price).desc()
-    ).limit(5).all()
+    ).limit(10).all()
+    top_labels = [i.item_name for i in top]
+    top_values = [(i.quantity * i.price) for i in top]
+
+    # Out of stock
+    out_of_stock = Inventory.query.filter(Inventory.quantity == 0).count()
+    in_stock = total_items - out_of_stock
+
+    # Monthly stock changes – requires a stock_history table
+    month_labels = []
+    month_counts = []
 
     return render_template(
         'inventory_analytics.html',
         total_items=total_items,
         total_value=total_value,
-        low_stock=low_stock,
+        low_labels=low_labels,
+        low_values=low_values,
+        top_labels=top_labels,
+        top_values=top_values,
         out_of_stock=out_of_stock,
-        highest_value_items=highest_value_items
+        in_stock=in_stock,
+        month_labels=month_labels,
+        month_counts=month_counts
     )
+
 
 
 # --------------------------------------------------
@@ -460,28 +518,45 @@ def delete_customer(id):
 @app.route('/customers/analytics')
 @login_required
 def customers_analytics():
+    # Total
     total = Customers.query.count()
+
+    # Active / Inactive
     active = Customers.query.filter_by(status="Active").count()
     inactive = Customers.query.filter_by(status="Inactive").count()
 
-    # City/State breakdown
-    city_breakdown = Customers.query.with_entities(
+    # City breakdown
+    city_data = Customers.query.with_entities(
         Customers.address, db.func.count()
     ).group_by(Customers.address).all()
+    city_labels = [row[0] for row in city_data]
+    city_counts = [row[1] for row in city_data]
 
-    # New this month
-    new_customers = Customers.query.filter(
-        Customers.id >= (Customers.query.count() - 10)
-    ).all()
+    # NEW: Monthly new customers (last 12 months)
+    month_data = db.session.query(
+        db.func.month(Employees.joining_date),
+        db.func.count()
+    ).group_by(db.func.month(Employees.joining_date)).all()
+
+    # Convert to chart lists
+    month_labels = [f"Month {m[0]}" for m in month_data]
+    month_counts = [m[1] for m in month_data]
+
+    # Latest 10 customers
+    latest_customers = Customers.query.order_by(Customers.id.desc()).limit(10).all()
 
     return render_template(
         'customers_analytics.html',
         total=total,
         active=active,
         inactive=inactive,
-        city_breakdown=city_breakdown,
-        new_customers=new_customers
+        city_labels=city_labels,
+        city_counts=city_counts,
+        month_labels=month_labels,
+        month_counts=month_counts,
+        latest_customers=latest_customers
     )
+
 
 
 # --------------------------------------------------

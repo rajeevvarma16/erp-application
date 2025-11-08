@@ -2,30 +2,76 @@
 {% block title %}Inventory Analytics{% endblock %}
 
 {% block content %}
-<h2>Inventory Analytics</h2>
+<h2 style="margin-bottom:20px;">Inventory Analytics</h2>
 
-<p>Total Items: {{ total_items }}</p>
-<p>Total Stock Value: ₹{{ total_value }}</p>
+<!-- KPI Cards -->
+<div style="display:flex; gap:20px; margin-bottom:20px;">
+    <div style="flex:1;background:#fff;padding:20px;border-radius:10px;">
+        <h3>Total Items</h3>
+        <h2>{{ total_items }}</h2>
+    </div>
 
-<h3>Low Stock Items (&lt; 10)</h3>
-<ul>
-{% for item in low_stock %}
-    <li>{{ item.item_name }} | Qty: {{ item.quantity }}</li>
-{% endfor %}
-</ul>
+    <div style="flex:1;background:#fff;padding:20px;border-radius:10px;">
+        <h3>Total Stock Value</h3>
+        <h2>₹{{ total_value }}</h2>
+    </div>
 
-<h3>Out of Stock</h3>
-<ul>
-{% for item in out_of_stock %}
-    <li>{{ item.item_name }}</li>
-{% endfor %}
-</ul>
+    <div style="flex:1;background:#fff;padding:20px;border-radius:10px;">
+        <h3>Out of Stock</h3>
+        <h2>{{ out_of_stock }}</h2>
+    </div>
+</div>
 
-<h3>Highest Value Items</h3>
-<ul>
-{% for item in highest_value_items %}
-    <li>{{ item.item_name }} | Value: ₹{{ item.quantity * item.price }}</li>
-{% endfor %}
-</ul>
+<!-- CHARTS -->
+<div style="display:flex; gap:20px; margin-bottom:20px;">
+    <div id="lowStockChart" style="flex:1;background:#fff;padding:20px;border-radius:10px;"></div>
+    <div id="highValueChart" style="flex:2;background:#fff;padding:20px;border-radius:10px;"></div>
+</div>
+
+<div id="stockStatusChart" style="background:#fff;padding:20px;border-radius:10px;margin-bottom:20px;"></div>
+
+<div style="background:#fff;padding:20px;border-radius:10px;">
+    <h3>Highest Value Items</h3>
+    <ul>
+        {% for name in top_labels %}
+        <li>{{ name }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+var lowLabels = JSON.parse('{{ low_labels | tojson | safe }}');
+var lowValues = JSON.parse('{{ low_values | tojson | safe }}');
+
+var topLabels = JSON.parse('{{ top_labels | tojson | safe }}');
+var topValues = JSON.parse('{{ top_values | tojson | safe }}');
+
+var outOfStock = {{ out_of_stock }};
+var inStock = {{ in_stock }};
+
+// Low Stock Bar
+new ApexCharts(document.querySelector("#lowStockChart"), {
+    chart: { type: 'bar', height: 300 },
+    series: [{ name: 'Quantity', data: lowValues }],
+    xaxis: { categories: lowLabels },
+    colors: ['#FB8C00']
+}).render();
+
+// High Value Items Bar
+new ApexCharts(document.querySelector("#highValueChart"), {
+    chart: { type: 'bar', height: 300 },
+    series: [{ name: 'Value (₹)', data: topValues }],
+    xaxis: { categories: topLabels },
+    colors: ['#3949AB']
+}).render();
+
+// Stock Status Donut
+new ApexCharts(document.querySelector("#stockStatusChart"), {
+    chart: { type: 'donut', height: 300 },
+    labels: ['Out of Stock', 'In Stock'],
+    series: [outOfStock, inStock],
+    colors: ['#E53935', '#43A047']
+}).render();
+</script>
 
 {% endblock %}

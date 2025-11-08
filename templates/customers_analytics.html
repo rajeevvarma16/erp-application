@@ -2,23 +2,95 @@
 {% block title %}Customer Analytics{% endblock %}
 
 {% block content %}
-<h2>Customer Analytics</h2>
+<h2 style="margin-bottom:20px;">Customer Analytics</h2>
 
-<p>Total: {{ total }}</p>
-<p>Active: {{ active }}</p>
-<p>Inactive: {{ inactive }}</p>
+<!-- KPI CARDS -->
+<div style="display:flex; gap:20px; margin-bottom:20px;">
+    <div style="flex:1;background:#fff;padding:20px;border-radius:10px;">
+        <h3>Total Customers</h3>
+        <h2>{{ total }}</h2>
+    </div>
 
-<h3>Customers Per Region</h3>
-<ul>
-{% for city, count in city_breakdown %}
-    <li>{{ city }}: {{ count }}</li>
-{% endfor %}
-</ul>
+    <div style="flex:1;background:#fff;padding:20px;border-radius:10px;">
+        <h3>Active</h3>
+        <h2>{{ active }}</h2>
+    </div>
 
-<h3>Newest Customers</h3>
-<ul>
-{% for cust in new_customers %}
-    <li>{{ cust.customer_name }} ({{ cust.phone }})</li>
-{% endfor %}
-</ul>
+    <div style="flex:1;background:#fff;padding:20px;border-radius:10px;">
+        <h3>Inactive</h3>
+        <h2>{{ inactive }}</h2>
+    </div>
+</div>
+
+<!-- CHART CONTAINERS -->
+<div style="display:flex; gap:20px; margin-bottom:20px;">
+    <div id="custStatusChart" style="flex:1;background:#fff;padding:20px;border-radius:10px;"></div>
+    <div id="custCityChart" style="flex:2;background:#fff;padding:20px;border-radius:10px;"></div>
+</div>
+
+<div id="custMonthlyChart" style="background:#fff;padding:20px;border-radius:10px;margin-bottom:20px;"></div>
+
+<!-- LATEST CUSTOMERS -->
+<div style="background:#fff;padding:20px;border-radius:10px;">
+    <h3>Latest Customers</h3>
+    <ul style="padding-left:15px;">
+        {% for c in latest_customers %}
+        <li>{{ c.customer_name }} - {{ c.phone }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- ✅ CLEAN JS VERSION -->
+<script>
+// Inject data from Flask safely
+var activeCustomers = {{ active }};
+var inactiveCustomers = {{ inactive }};
+
+var cityLabels = JSON.parse('{{ city_labels | tojson | safe }}');
+var cityCounts = JSON.parse('{{ city_counts | tojson | safe }}');
+
+var monthLabels = JSON.parse('{{ month_labels | tojson | safe }}');
+var monthCounts = JSON.parse('{{ month_counts | tojson | safe }}');
+
+// ----------------------
+// Customer Status Donut
+// ----------------------
+new ApexCharts(document.querySelector("#custStatusChart"), {
+    chart: { type: 'donut', height: 300 },
+    labels: ['Active', 'Inactive'],
+    series: [activeCustomers, inactiveCustomers],
+    colors: ['#00C853', '#D50000']
+}).render();
+
+// ----------------------
+// Customers by City Bar
+// ----------------------
+new ApexCharts(document.querySelector("#custCityChart"), {
+    chart: { type: 'bar', height: 300 },
+    series: [{
+        name: 'Customers',
+        data: cityCounts
+    }],
+    xaxis: {
+        categories: cityLabels
+    },
+    colors: ['#0288D1']
+}).render();
+
+// ----------------------
+// Monthly New Customers
+// ----------------------
+new ApexCharts(document.querySelector("#custMonthlyChart"), {
+    chart: { type: 'line', height: 300 },
+    series: [{
+        name: 'New Customers',
+        data: monthCounts
+    }],
+    xaxis: {
+        categories: monthLabels
+    },
+    colors: ['#673AB7']
+}).render();
+</script>
+
 {% endblock %}

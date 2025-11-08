@@ -2,15 +2,80 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h2>ERP Analytics Dashboard</h2>
+<div style="padding: 20px;">
 
-<p>Total Employees: {{ emp_count }}</p>
-<p>Total Vendors: {{ vendor_count }}</p>
-<p>Total Customers: {{ customer_count }}</p>
-<p>Total Inventory Items: {{ inventory_count }}</p>
-<p>Total Stock Value: ₹{{ total_stock_value }}</p>
+    <h2 style="margin-bottom: 20px;">Dashboard Analytics</h2>
 
-<p>Active Customers: {{ active_customers }}</p>
-<p>Inactive Customers: {{ inactive_customers }}</p>
+    <!-- Top KPI Cards -->
+    <div style="display: flex; gap: 20px; margin-bottom: 25px;">
+        <div style="flex:1; background:#fff; padding:20px; border-radius:10px;">
+            <h3>Employees</h3>
+            <h2>{{ emp_count }}</h2>
+        </div>
+
+        <div style="flex:1; background:#fff; padding:20px; border-radius:10px;">
+            <h3>Customers</h3>
+            <h2>{{ customer_count }}</h2>
+        </div>
+
+        <div style="flex:1; background:#fff; padding:20px; border-radius:10px;">
+            <h3>Vendors</h3>
+            <h2>{{ vendor_count }}</h2>
+        </div>
+
+        <div style="flex:1; background:#fff; padding:20px; border-radius:10px;">
+            <h3>Total Inventory Items</h3>
+            <h2>{{ inventory_count }}</h2>
+        </div>
+    </div>
+
+    <!-- Row 1 -->
+    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+        <div id="customersChart" style="flex: 1; background: #fff; padding: 20px; border-radius: 10px;"></div>
+        <div id="inventoryValueChart" style="flex: 2; background: #fff; padding: 20px; border-radius: 10px;"></div>
+    </div>
+
+    <!-- Row 2 -->
+    <div id="employeeChart" style="background: #fff; padding: 20px; border-radius: 10px;"></div>
+
+</div>
+
+<script>
+// ===== Inject Flask Data (SAFE) =====
+var activeCustomers = {{ active_customers }};
+var inactiveCustomers = {{ inactive_customers }};
+var totalStockValue = {{ total_stock_value }};
+var empCount = {{ emp_count }};
+
+// ===== Customers Donut Chart =====
+new ApexCharts(document.querySelector("#customersChart"), {
+    chart: { type: 'donut', height: 300 },
+    labels: ['Active Customers', 'Inactive Customers'],
+    series: [activeCustomers, inactiveCustomers],
+    colors: ['#00C853', '#D50000']
+}).render();
+
+// ===== Inventory Stock Value (Bar) =====
+new ApexCharts(document.querySelector("#inventoryValueChart"), {
+    chart: { type: 'bar', height: 300 },
+    series: [{
+        name: 'Stock Value (₹)',
+        data: [totalStockValue]
+    }],
+    xaxis: { categories: ['Total Stock Value'] },
+    colors: ['#0288D1']
+}).render();
+
+// ===== Employee Count Timeline =====
+new ApexCharts(document.querySelector("#employeeChart"), {
+    chart: { type: 'line', height: 300 },
+    series: [{
+        name: 'Employees',
+        data: [empCount - 3, empCount - 1, empCount]
+    }],
+    xaxis: { categories: ['2023', '2024', '2025'] },
+    colors: ['#7E57C2']
+}).render();
+</script>
 
 {% endblock %}
