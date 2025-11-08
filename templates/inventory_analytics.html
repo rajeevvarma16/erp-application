@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Inventory Analytics{% endblock %}
+
+{% block content %}
+<h2>Inventory Analytics</h2>
+
+<p>Total Items: {{ total_items }}</p>
+<p>Total Stock Value: ₹{{ total_value }}</p>
+
+<h3>Low Stock Items (&lt; 10)</h3>
+<ul>
+{% for item in low_stock %}
+    <li>{{ item.item_name }} | Qty: {{ item.quantity }}</li>
+{% endfor %}
+</ul>
+
+<h3>Out of Stock</h3>
+<ul>
+{% for item in out_of_stock %}
+    <li>{{ item.item_name }}</li>
+{% endfor %}
+</ul>
+
+<h3>Highest Value Items</h3>
+<ul>
+{% for item in highest_value_items %}
+    <li>{{ item.item_name }} | Value: ₹{{ item.quantity * item.price }}</li>
+{% endfor %}
+</ul>
+
+{% endblock %}

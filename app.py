@@ -147,6 +147,37 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+# --------------------------------------------------
+# dashboard
+# --------------------------------------------------
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    emp_count = Employees.query.count()
+    vendor_count = Vendors.query.count()
+    customer_count = Customers.query.count()
+    inventory_count = Inventory.query.count()
+
+    total_stock_value = db.session.query(
+        db.func.sum(Inventory.quantity * Inventory.price)
+    ).scalar() or 0
+
+    active_customers = Customers.query.filter_by(status="Active").count()
+    inactive_customers = Customers.query.filter_by(status="Inactive").count()
+
+    return render_template(
+        'dashboard.html',
+        emp_count=emp_count,
+        vendor_count=vendor_count,
+        customer_count=customer_count,
+        inventory_count=inventory_count,
+        total_stock_value=total_stock_value,
+        active_customers=active_customers,
+        inactive_customers=inactive_customers
+    )
+
+
 
 # --------------------------------------------------
 # EMPLOYEES
@@ -201,6 +232,25 @@ def delete_employee(id):
     db.session.commit()
     return redirect(url_for('employees'))
 
+@app.route('/employees/analytics')
+@login_required
+def employees_analytics():
+    emp_count = Employees.query.count()
+
+    avg_salary = db.session.query(db.func.avg(Employees.salary)).scalar() or 0
+
+    dept_counts = Employees.query.with_entities(
+        Employees.department, db.func.count()
+    ).group_by(Employees.department).all()
+
+    return render_template(
+        'employees_analytics.html',
+        emp_count=emp_count,
+        avg_salary=avg_salary,
+        dept_counts=dept_counts
+    )
+
+
 
 # --------------------------------------------------
 # VENDORS
@@ -252,6 +302,29 @@ def delete_vendor(id):
     db.session.delete(vendor)
     db.session.commit()
     return redirect(url_for('vendors'))
+
+@app.route('/vendors/analytics')
+@login_required
+def vendors_analytics():
+    total = Vendors.query.count()
+
+    category_breakdown = Vendors.query.with_entities(
+        Vendors.category, db.func.count()
+    ).group_by(Vendors.category).all()
+
+    recent = Vendors.query.order_by(Vendors.id.desc()).limit(5).all()
+
+    missing_phone = Vendors.query.filter(
+        (Vendors.phone == None) | (Vendors.phone == "")
+    ).count()
+
+    return render_template(
+        'vendors_analytics.html',
+        total=total,
+        category_breakdown=category_breakdown,
+        recent=recent,
+        missing_phone=missing_phone
+    )
 
 
 # --------------------------------------------------
@@ -306,6 +379,33 @@ def delete_inventory(id):
     return redirect(url_for('inventory'))
 
 
+@app.route('/inventory/analytics')
+@login_required
+def inventory_analytics():
+    total_items = Inventory.query.count()
+
+    total_value = db.session.query(
+        db.func.sum(Inventory.quantity * Inventory.price)
+    ).scalar() or 0
+
+    low_stock = Inventory.query.filter(Inventory.quantity < 10).all()
+
+    out_of_stock = Inventory.query.filter(Inventory.quantity == 0).all()
+
+    highest_value_items = Inventory.query.order_by(
+        (Inventory.quantity * Inventory.price).desc()
+    ).limit(5).all()
+
+    return render_template(
+        'inventory_analytics.html',
+        total_items=total_items,
+        total_value=total_value,
+        low_stock=low_stock,
+        out_of_stock=out_of_stock,
+        highest_value_items=highest_value_items
+    )
+
+
 # --------------------------------------------------
 # CUSTOMERS
 # --------------------------------------------------
@@ -356,6 +456,32 @@ def delete_customer(id):
     db.session.delete(customer)
     db.session.commit()
     return redirect(url_for('customers'))
+
+@app.route('/customers/analytics')
+@login_required
+def customers_analytics():
+    total = Customers.query.count()
+    active = Customers.query.filter_by(status="Active").count()
+    inactive = Customers.query.filter_by(status="Inactive").count()
+
+    # City/State breakdown
+    city_breakdown = Customers.query.with_entities(
+        Customers.address, db.func.count()
+    ).group_by(Customers.address).all()
+
+    # New this month
+    new_customers = Customers.query.filter(
+        Customers.id >= (Customers.query.count() - 10)
+    ).all()
+
+    return render_template(
+        'customers_analytics.html',
+        total=total,
+        active=active,
+        inactive=inactive,
+        city_breakdown=city_breakdown,
+        new_customers=new_customers
+    )
 
 
 # --------------------------------------------------

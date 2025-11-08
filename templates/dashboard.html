@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2>ERP Analytics Dashboard</h2>
+
+<p>Total Employees: {{ emp_count }}</p>
+<p>Total Vendors: {{ vendor_count }}</p>
+<p>Total Customers: {{ customer_count }}</p>
+<p>Total Inventory Items: {{ inventory_count }}</p>
+<p>Total Stock Value: ₹{{ total_stock_value }}</p>
+
+<p>Active Customers: {{ active_customers }}</p>
+<p>Inactive Customers: {{ inactive_customers }}</p>
+
+{% endblock %}

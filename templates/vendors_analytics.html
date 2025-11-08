@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Vendor Analytics{% endblock %}
+
+{% block content %}
+<h2>Vendor Analytics</h2>
+
+<p>Total Vendors: {{ total }}</p>
+
+<p>Vendors Missing Phone Numbers: {{ missing_phone }}</p>
+
+<h3>Vendors Per Category</h3>
+<ul>
+{% for cat, count in category_breakdown %}
+    <li>{{ cat }}: {{ count }}</li>
+{% endfor %}
+</ul>
+
+<h3>Recently Added Vendors</h3>
+<ul>
+{% for v in recent %}
+    <li>{{ v.vendor_name }} - {{ v.category }}</li>
+{% endfor %}
+</ul>
+
+{% endblock %}

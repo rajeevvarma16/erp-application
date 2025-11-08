@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Employee Analytics{% endblock %}
+
+{% block content %}
+<h2>Employee Analytics</h2>
+
+<p>Total Employees: {{ total }}</p>
+<p>Active: {{ active }}</p>
+<p>Inactive: {{ inactive }}</p>
+
+<p>Average Salary: ₹{{ avg_salary|round(2) }}</p>
+<p>Highest Salary: ₹{{ highest_salary }}</p>
+<p>Lowest Salary: ₹{{ lowest_salary }}</p>
+
+<h3>Employees Per Department</h3>
+<ul>
+{% for dept, count in dept_counts %}
+    <li>{{ dept }}: {{ count }}</li>
+{% endfor %}
+</ul>
+
+<h3>New Employees This Month</h3>
+<ul>
+{% for emp in recent %}
+    <li>{{ emp.employee_name }} ({{ emp.joining_date }})</li>
+{% endfor %}
+</ul>
+
+{% endblock %}
