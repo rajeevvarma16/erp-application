@@ -1,37 +1,49 @@
 {% extends "base.html" %}
 
-{% block title %}Inventory Management{% endblock %}
+{% block title %}Inventory{% endblock %}
 
 {% block content %}
-<h2>Inventory Page</h2>
-<p>Welcome to the inventory section.</p>
+<h2>Inventory</h2>
+
+<a href="/inventory/add">
+    <button>Add Item</button>
+</a>
 
 
+<br>
 
-<table>
+<!-- Display Inventory Table -->
+<table border="1" cellpadding="8">
     <thead>
         <tr>
             <th>S.No</th>
             <th>Item Name</th>
-            <th>Quantity</th>
+            <th>Qty</th>
+            <th>Price</th>
             <th>Unit</th>
-            <th>Price (₹)</th>
+            <th>Actions</th>
         </tr>
     </thead>
+
     <tbody>
-        
         {% for item in inventory %}
         <tr>
             <td>{{ loop.index }}</td>
             <td>{{ item.item_name }}</td>
             <td>{{ item.quantity }}</td>
-            <td>{{ item.unit }}</td>
             <td>{{ item.price }}</td>
+            <td>{{ item.unit }}</td>
+
+            <td>
+                <a href="/inventory/edit/{{ item.id }}">Edit</a>
+
+                <form action="/inventory/delete/{{ item.id }}" method="POST" style="display:inline;">
+                    <button type="submit">X</button>
+                </form>
+            </td>
         </tr>
-    
         {% endfor %}
     </tbody>
-      </table>
-
+</table>
 
 {% endblock %}

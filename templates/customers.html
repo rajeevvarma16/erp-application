@@ -3,35 +3,47 @@
 {% block title %}Customers{% endblock %}
 
 {% block content %}
-<h2>this is the customers page</h2>
-<p>Welcome to the customer section.</p>
+<h2>Customers</h2>
 
 
-<table>
+<a href="/customers/add">
+    <button>Add Customer</button>
+</a>
+
+<br>
+
+<!-- Display Customer Table -->
+<table border="1" cellpadding="8">
     <thead>
         <tr>
-          <th>S.No</th>
-          <th>Name</th>
-          <th>Phone</th>
-          <th>Address</th>
-          <th>Status</th>  
+            <th>S.No</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th>Actions</th>
         </tr>
     </thead>
+
     <tbody>
-        
-        {% for customer in customers %}
+        {% for cust in customers %}
         <tr>
             <td>{{ loop.index }}</td>
-            <td>{{ customer.customer_name }}</td>
-            <td>{{ customer.phone }}</td>
-            <td>{{ customer.address }}</td>
-            <td>{{ customer.status }}</td>
+            <td>{{ cust.customer_name }}</td>
+            <td>{{ cust.phone }}</td>
+            <td>{{ cust.address }}</td>
+            <td>{{ cust.status }}</td>
+
+            <td>
+                <a href="/customers/edit/{{ cust.id }}">Edit</a>
+
+                <form action="/customers/delete/{{ cust.id }}" method="POST" style="display:inline;">
+                    <button type="submit">X</button>
+                </form>
+            </td>
         </tr>
-    
         {% endfor %}
     </tbody>
-      </table>
-    
-
+</table>
 
 {% endblock %}

@@ -3,9 +3,11 @@
 {% block title %}Vendors{% endblock %}
 
 {% block content %}
-<h2>this is the vendors page welcome </h2>
-<p>Welcome to the vendorss section.</p>
 
+
+<a href="/vendors/add">
+    <button>Add Vendor</button>
+</a>
 
 <table>
     <thead>
@@ -15,17 +17,36 @@
           <th>Contact Person</th>
           <th>Phone</th>
           <th>Category</th>
+          <th>Actions</th>
         </tr>
     </thead>
     <tbody>
         
         {% for vendor in vendors %}
         <tr>
+
             <td>{{ loop.index }}</td>
             <td>{{ vendor.vendor_name }}</td>
             <td>{{ vendor.contact_person }}</td>
             <td>{{ vendor.phone }}</td>
             <td>{{ vendor.category }}</td>
+            <td>
+
+                <a href="/vendors/edit/{{ vendor.id }}">Edit</a>
+                
+                <form action="/vendors/delete/{{ vendor.id }}" method="POST">
+                    <button type="submit">X</button>
+                </form>
+
+                
+
+
+
+            </td>
+
+
+
+
         </tr>
     
         {% endfor %}

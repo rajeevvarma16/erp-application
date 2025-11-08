@@ -135,73 +135,233 @@ def protected():
     return render_template('landing.html')
     #return f'''✅ Logged in as: {current_user.username} <br> <a href="{url_for('logout')}">Logout</a>'''
 
+
 @app.route('/employees', methods=['GET', 'POST'])
 @login_required
 def employees():
-    new_employee = Employees(
-            employee_name="Rajeev",
-            status="Active",
-            department="IT",
-            salary=70000,
-            joining_date=datetime.strptime("2023-01-15", "%Y-%m-%d").date()
-        )
-    db.session.add(new_employee)
-    db.session.commit()
 
     all_employees = Employees.query.all()
-
     return render_template('employees.html', employees=all_employees)
 
-@app.route('/vendors')
+@app.route('/employees/add', methods=['GET', 'POST'])
+@login_required
+def add_employee():
+    if request.method == 'POST':
+        name = request.form.get("employee_name")
+        status = request.form.get("status")
+        dept = request.form.get("department")
+        salary = request.form.get("salary")
+        joining_date = datetime.strptime(request.form.get("joining_date"), "%Y-%m-%d").date()
+
+        new_emp = Employees(
+            employee_name=name,
+            status=status,
+            department=dept,
+            salary=salary,
+            joining_date=joining_date
+        )
+
+        db.session.add(new_emp)
+        db.session.commit()
+
+        return redirect('/employees')
+
+    return render_template('add_employee.html')
+
+
+@app.route('/employees/delete/<int:id>', methods=['POST'])
+@login_required
+def delete_employee(id):
+    emp = Employees.query.get_or_404(id)
+    db.session.delete(emp)
+    db.session.commit()
+    return redirect('/employees')
+
+@app.route('/employees/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_employee(id):
+    employee = Employees.query.get_or_404(id)
+
+    if request.method == 'POST':
+        employee.employee_name = request.form.get("employee_name")
+        employee.status = request.form.get("status")
+        employee.department = request.form.get("department")
+        employee.salary = request.form.get("salary")
+        employee.joining_date = datetime.strptime(request.form.get("joining_date"), "%Y-%m-%d").date()
+
+        db.session.commit()
+        return redirect('/employees')
+
+    return render_template('edit_employee.html', employee=employee)
+
+@app.route('/vendors', methods=['GET', 'POST'])
 @login_required
 def vendors():
 
-    dummy = Vendors(
-        vendor_name="ABC Suppliers",
-        contact_person="Ramesh",
-        phone="9876001234",
-        category="Hardware"
-    )
-    db.session.add(dummy)
-    db.session.commit()
-
     all_vendors = Vendors.query.all()
     return render_template('vendors.html', vendors=all_vendors)
-    #return render_template('vendors.html')
 
-@app.route('/inventory')
+@app.route('/vendors/add', methods=['GET', 'POST'])
+@login_required
+def add_vendor():
+    if request.method == 'POST':
+        name = request.form.get("name")
+        contact = request.form.get("contact_person")
+        phone = request.form.get("phone")
+        category = request.form.get("category")
+
+        new_vendor = Vendors(
+            vendor_name=name,
+            contact_person=contact,
+            phone=phone,
+            category=category
+        )
+
+        db.session.add(new_vendor)
+        db.session.commit()
+
+        return redirect('/vendors')
+
+    return render_template('add_vendor.html')
+
+
+@app.route('/vendors/delete/<int:id>', methods=['POST'])
+@login_required
+def delete_vendor(id):
+    vendor = Vendors.query.get_or_404(id)
+    db.session.delete(vendor)
+    db.session.commit()
+    return redirect('/vendors')
+
+@app.route('/vendors/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_vendor(id):
+    vendor = Vendors.query.get_or_404(id)
+
+    if request.method == 'POST':
+        vendor.vendor_name = request.form.get("name")
+        vendor.contact_person = request.form.get("contact_person")
+        vendor.phone = request.form.get("phone")
+        vendor.category = request.form.get("category")
+
+        db.session.commit()
+
+        return redirect('/vendors')
+
+    return render_template('edit_vendor.html', vendor=vendor)
+
+
+@app.route('/inventory', methods=['GET', 'POST'])
 @login_required
 def inventory():
-    dummy = Inventory(
-        item_name="Cement Bag",
-        quantity=50,
-        price=350,
-        unit="Bags"
-    )
-    db.session.add(dummy)
+
+    all_inventory = Inventory.query.all()
+    return render_template('inventory.html', inventory=all_inventory)
+
+@app.route('/inventory/add', methods=['GET', 'POST'])
+@login_required
+def add_inventory():
+    if request.method == 'POST':
+        item_name = request.form.get("item_name")
+        qty = request.form.get("quantity")
+        price = request.form.get("price")
+        unit = request.form.get("unit")
+
+        new_item = Inventory(
+            item_name=item_name,
+            quantity=qty,
+            price=price,
+            unit=unit
+        )
+
+        db.session.add(new_item)
+        db.session.commit()
+
+        return redirect('/inventory')
+
+    return render_template('add_inventory.html')
+
+
+
+
+
+@app.route('/inventory/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_inventory(id):
+    item = Inventory.query.get_or_404(id)
+
+    if request.method == 'POST':
+        item.item_name = request.form.get("item_name")
+        item.quantity = request.form.get("quantity")
+        item.price = request.form.get("price")
+        item.unit = request.form.get("unit")
+
+        db.session.commit()
+        return redirect('/inventory')
+
+    return render_template('edit_inventory.html', item=item)
+
+@app.route('/inventory/delete/<int:id>', methods=['POST'])
+@login_required
+def delete_inventory(id):
+    item = Inventory.query.get_or_404(id)
+    db.session.delete(item)
     db.session.commit()
+    return redirect('/inventory')
 
-    all_items = Inventory.query.all()
-    return render_template('inventory.html', inventory=all_items)
-
-    #return render_template('inventory.html')
-
-@app.route('/customers')
+@app.route('/customers', methods=['GET', 'POST'])
 @login_required
 def customers():
-
-    new_customer = Customers(
-        customer_name="John Enterprises",
-        phone="9876543210",
-        address="Hyderabad, Telangana",
-        status="Active"
-        )
-    db.session.add(new_customer)
-    db.session.commit()
-
+    
     all_customers = Customers.query.all()
-
     return render_template('customers.html', customers=all_customers)
+
+@app.route('/customers/add', methods=['GET', 'POST'])
+@login_required
+def add_customer():
+    if request.method == 'POST':
+        name = request.form.get("customer_name")
+        phone = request.form.get("phone")
+        address = request.form.get("address")
+        status = request.form.get("status")
+
+        new_customer = Customers(
+            customer_name=name,
+            phone=phone,
+            address=address,
+            status=status
+        )
+        db.session.add(new_customer)
+        db.session.commit()
+
+        return redirect('/customers')
+
+    return render_template('add_customer.html')
+
+
+@app.route('/customers/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_customer(id):
+    customer = Customers.query.get_or_404(id)
+
+    if request.method == 'POST':
+        customer.customer_name = request.form.get("customer_name")
+        customer.phone = request.form.get("phone")
+        customer.address = request.form.get("address")
+        customer.status = request.form.get("status")
+
+        db.session.commit()
+        return redirect('/customers')
+
+    return render_template('edit_customer.html', customer=customer)
+
+@app.route('/customers/delete/<int:id>', methods=['POST'])
+@login_required
+def delete_customer(id):
+    customer = Customers.query.get_or_404(id)
+    db.session.delete(customer)
+    db.session.commit()
+    return redirect('/customers')
 
 @app.route('/logout')
 @login_required
@@ -220,6 +380,4 @@ if __name__ == "__main__":
     # ✅ ensure DB and tables exist every time you start app
     with app.app_context():
         db.create_all()
-
-    
     app.run(debug=True, port=8000)

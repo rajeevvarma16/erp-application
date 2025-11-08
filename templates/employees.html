@@ -3,8 +3,11 @@
 {% block title %}Employees Management{% endblock %}
 
 {% block content %}
-<h2>this is the employees page</h2>
-<p>Welcome to the employee section.</p>
+<h2>employees</h2>
+
+<a href="/employees/add">
+  <button>Add Employee</button>
+</a>
 
 <table>
 <thead>
@@ -15,6 +18,7 @@
       <th>Joining Date</th>
       <th>Salary</th>
       <th>Status</th>
+      <th>Actions</th>
       
     </tr>
 </thead>
@@ -28,6 +32,25 @@
         <td>{{ emp.joining_date.strftime('%d %b, %Y') }}</td>
         <td>{{ emp.salary }}</td>
         <td>{{ emp.status }}</td>
+
+        <!-- <td>
+          <form action="/employees/delete/{{ emp.id }}" method="POST">
+              <button type="submit">X</button>
+          </form>
+
+      </td> -->
+
+      <td>
+        <a href="/employees/edit/{{ emp.id }}">Edit</a>
+    
+        <form action="/employees/delete/{{ emp.id }}" method="POST" style="display:inline;">
+            <button type="submit">X</button>
+        </form>
+    </td>
+    
+
+
+
     </tr>
 
     {% endfor %}

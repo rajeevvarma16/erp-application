@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Vendor{% endblock %}
+
+{% block content %}
+<h2>Edit Vendor</h2>
+
+<form method="POST">
+    <div>
+        <label>Vendor Name:</label>
+        <input type="text" name="name" value="{{ vendor.vendor_name }}" required>
+    </div>
+
+    <div>
+        <label>Contact Person:</label>
+        <input type="text" name="contact_person" value="{{ vendor.contact_person }}" required>
+    </div>
+
+    <div>
+        <label>Phone:</label>
+        <input type="text" name="phone" value="{{ vendor.phone }}" required>
+    </div>
+
+    <div>
+        <label>Category:</label>
+        <input type="text" name="category" value="{{ vendor.category }}" required>
+    </div>
+
+    <button type="submit">Update Vendor</button>
+</form>
+
+{% endblock %}

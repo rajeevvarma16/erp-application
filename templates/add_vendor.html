@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Add Vendor{% endblock %}
+
+{% block content %}
+<h2>Add Vendor</h2>
+
+<form method="POST">
+
+    <label>Vendor Name:</label>
+    <input type="text" name="name" required>
+
+    <label>Contact Person:</label>
+    <input type="text" name="contact_person" required>
+
+    <label>Phone:</label>
+    <input type="text" name="phone" required>
+
+    <label>Category:</label>
+    <input type="text" name="category" required>
+
+    <button type="submit">Save Vendor</button>
+</form>
+
+<br>
+<a href="/vendors">Back to Vendors</a>
+
+{% endblock %}
