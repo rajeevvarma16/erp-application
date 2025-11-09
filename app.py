@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (
     LoginManager, UserMixin, login_user, logout_user,
@@ -566,6 +566,27 @@ def customers_analytics():
 def ratelimit_handler(error):
     flash("Too many attempts. Please wait a minute and try again.")
     return render_template('login.html'), 429
+
+
+@app.route("/api/chatbot", methods=["POST"])
+def chatbot():
+    from openai import OpenAI
+    import os
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+    data = request.get_json()
+    user_query = data.get("query", "")
+
+    response = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[
+            {"role": "system", "content": "You are an ERP assistant."},
+            {"role": "user", "content": user_query}
+        ]
+    )
+
+    reply = response.choices[0].message.content
+    return jsonify({"reply": reply})
 
 
 # --------------------------------------------------
