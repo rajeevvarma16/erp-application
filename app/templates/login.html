@@ -21,6 +21,8 @@
     <!-- <form id="loginForm"> -->
       <form method="POST" action="/login">
 
+      {{ form.hidden_tag() }}   <!-- 🔥 CSRF protection -->
+
       <div class="input-group">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
