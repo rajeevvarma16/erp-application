@@ -14,15 +14,15 @@ auth_bp = Blueprint('auth', __name__)
 # -------------------- FORMS --------------------
 class LoginForm(FlaskForm):
     # match EXACT HTML input name="username"
-    username = StringField('Username', validators=[InputRequired(), Length(min=4, max=50)])
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=6, max=20)])
+    username = StringField('Username', validators=[InputRequired(), Length(min=2, max=50)])
+    password = PasswordField('Password', validators=[InputRequired(), Length(min=2, max=20)])
     submit = SubmitField('Login')
 
 
 class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[InputRequired(), Length(min=4, max=20)])
+    username = StringField('Username', validators=[InputRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[InputRequired(), Length(min=4, max=50), Email()])
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=6, max=20)])
+    password = PasswordField('Password', validators=[InputRequired(), Length(min=2, max=20)])
     submit = SubmitField('Register')
 
     def validate_email(self, field):
