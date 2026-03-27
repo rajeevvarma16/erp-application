@@ -61,7 +61,7 @@ def register():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        hashed_pw = generate_password_hash(form.password.data)
+        hashed_pw = generate_password_hash(form.password.data, method='pbkdf2:sha256')
         new_user = Users(
             username=form.username.data,
             email=form.email.data.lower(),
