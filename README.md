@@ -8,5 +8,17 @@ A secure login/register/logout app with:
 
 ## Setup
 ```bash
+github download:
+git clone <your-repo-link>
+cd construction-erp
+
+virtual environment:
+python3 -m venv venv
+source venv/bin/activate
+
+download requirements and run app:
 pip install -r requirements.txt
-python3.9 app.py
+python run.py
+
+open in browser:
+http://127.0.0.1:5000
