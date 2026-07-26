@@ -5,12 +5,16 @@
 {% block content %}
 <h2>employees</h2>
 
+{% if can('employees', 'analytics') %}
 <a href="/employees/analytics">View Analytics</a>
+{% endif %}
 
 
+{% if can('employees', 'add') %}
 <a href="/employees/add">
   <button>Add Employee</button>
 </a>
+{% endif %}
 
 <table>
 <thead>
@@ -44,11 +48,15 @@
       </td> -->
 
       <td>
+        {% if can('employees', 'edit') %}
         <a href="/employees/edit/{{ emp.id }}">Edit</a>
+        {% endif %}
     
+        {% if can('employees', 'delete') %}
         <form action="/employees/delete/{{ emp.id }}" method="POST" style="display:inline;">
             <button type="submit">X</button>
         </form>
+        {% endif %}
     </td>
     
 

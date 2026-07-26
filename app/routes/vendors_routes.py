@@ -1,19 +1,19 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from flask_login import login_required
+from app.rbac import permission_required
 from app.models.vendors import Vendors
 from app import db
 
 vendors_bp = Blueprint('vendors', __name__)
 
 @vendors_bp.route('/vendors')
-@login_required
+@permission_required('vendors', 'view')
 def vendors():
     all_vendors = Vendors.query.all()
     return render_template('vendors.html', vendors=all_vendors)
 
 
 @vendors_bp.route('/vendors/add', methods=['GET', 'POST'])
-@login_required
+@permission_required('vendors', 'add')
 def add_vendor():
     if request.method == 'POST':
         vendor = Vendors(
@@ -30,7 +30,7 @@ def add_vendor():
 
 
 @vendors_bp.route('/vendors/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
+@permission_required('vendors', 'edit')
 def edit_vendor(id):
     vendor = Vendors.query.get_or_404(id)
 
@@ -46,7 +46,7 @@ def edit_vendor(id):
 
 
 @vendors_bp.route('/vendors/delete/<int:id>', methods=['POST'])
-@login_required
+@permission_required('vendors', 'delete')
 def delete_vendor(id):
     vendor = Vendors.query.get_or_404(id)
     db.session.delete(vendor)
@@ -55,7 +55,7 @@ def delete_vendor(id):
 
 
 @vendors_bp.route('/vendors/analytics')
-@login_required
+@permission_required('vendors', 'analytics')
 def vendors_analytics():
     total_vendors = Vendors.query.count()
 

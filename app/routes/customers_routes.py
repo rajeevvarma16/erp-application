@@ -1,19 +1,19 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from flask_login import login_required
+from app.rbac import permission_required
 from app.models.customers import Customers
 from app import db
 
 customers_bp = Blueprint('customers', __name__)
 
 @customers_bp.route('/customers')
-@login_required
+@permission_required('customers', 'view')
 def customers():
     all_customers = Customers.query.all()
     return render_template('customers.html', customers=all_customers)
 
 
 @customers_bp.route('/customers/add', methods=['GET', 'POST'])
-@login_required
+@permission_required('customers', 'add')
 def add_customer():
     if request.method == 'POST':
         cust = Customers(
@@ -30,7 +30,7 @@ def add_customer():
 
 
 @customers_bp.route('/customers/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
+@permission_required('customers', 'edit')
 def edit_customer(id):
     customer = Customers.query.get_or_404(id)
 
@@ -46,7 +46,7 @@ def edit_customer(id):
 
 
 @customers_bp.route('/customers/delete/<int:id>', methods=['POST'])
-@login_required
+@permission_required('customers', 'delete')
 def delete_customer(id):
     customer = Customers.query.get_or_404(id)
     db.session.delete(customer)
@@ -55,7 +55,7 @@ def delete_customer(id):
 
 
 @customers_bp.route('/customers/analytics')
-@login_required
+@permission_required('customers', 'analytics')
 def customers_analytics():
     total = Customers.query.count()
 

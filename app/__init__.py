@@ -1,8 +1,11 @@
+import click
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from sqlalchemy import inspect, text
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -19,6 +22,19 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     limiter.init_app(app)
+
+    # This project uses SQLite without a migration framework. Upgrade an
+    # existing users table so current installations can adopt RBAC safely.
+    with app.app_context():
+        inspector = inspect(db.engine)
+        if "users" in inspector.get_table_names():
+            columns = {column["name"] for column in inspector.get_columns("users")}
+            if "role" not in columns:
+                with db.engine.begin() as connection:
+                    connection.execute(text(
+                        "ALTER TABLE users ADD COLUMN role VARCHAR(20) "
+                        "NOT NULL DEFAULT 'employee'"
+                    ))
 
     # User loader
     from app.models.users import Users
@@ -45,5 +61,22 @@ def create_app():
     app.register_blueprint(customers_bp)
     app.register_blueprint(inventory_bp)
     app.register_blueprint(chatbot_bp)
+
+    @app.context_processor
+    def inject_permissions():
+        from app.rbac import has_permission
+        return {"can": lambda resource, action: has_permission(current_user, resource, action)}
+
+    @app.cli.command("set-role")
+    @click.argument("username")
+    @click.argument("role", type=click.Choice(["admin", "manager", "employee"]))
+    def set_role(username, role):
+        """Assign an RBAC role: flask --app run set-role USERNAME ROLE."""
+        user = Users.query.filter_by(username=username).first()
+        if user is None:
+            raise click.ClickException(f"User '{username}' was not found.")
+        user.role = role
+        db.session.commit()
+        click.echo(f"Assigned {role} role to {username}.")
 
     return app

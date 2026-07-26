@@ -62,15 +62,24 @@
   <!-- ✅ FIXED NAVBAR WITH CORRECT BLUEPRINT ENDPOINTS -->
   <ul>
     <li><a href="{{ url_for('auth.protected') }}">Home</a></li>
+    {% if can('inventory', 'view') %}
     <li><a href="{{ url_for('inventory.inventory') }}">Inventory</a></li>
+    {% endif %}
+    {% if can('vendors', 'view') %}
     <li><a href="{{ url_for('vendors.vendors') }}">Vendors</a></li>
+    {% endif %}
+    {% if can('employees', 'view') %}
     <li><a href="{{ url_for('employees.employees') }}">Employees</a></li>
+    {% endif %}
+    {% if can('customers', 'view') %}
     <li><a href="{{ url_for('customers.customers') }}">Customers</a></li>
+    {% endif %}
     <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
   </ul>
 
   {% block content %}{% endblock %}
 
+  {% if can('chatbot', 'use') %}
   <!-- Floating AI Button -->
   <div id="ai-button"
     style="position: fixed; bottom: 20px; right: 20px;
@@ -135,6 +144,7 @@ async function sendAIMessage() {
       document.getElementById("chat-area").scrollHeight;
 }
 </script>
+  {% endif %}
 
 </body>
 </html>

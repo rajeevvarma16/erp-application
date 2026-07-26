@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from flask_login import login_required
+from app.rbac import permission_required
 from datetime import datetime
 from app.models.employees import Employees
 from app import db
@@ -7,14 +7,14 @@ from app import db
 employees_bp = Blueprint('employees', __name__)
 
 @employees_bp.route('/employees')
-@login_required
+@permission_required('employees', 'view')
 def employees():
     all_employees = Employees.query.all()
     return render_template('employees.html', employees=all_employees)
 
 
 @employees_bp.route('/employees/add', methods=['GET', 'POST'])
-@login_required
+@permission_required('employees', 'add')
 def add_employee():
     if request.method == 'POST':
         emp = Employees(
@@ -35,7 +35,7 @@ def add_employee():
 
 
 @employees_bp.route('/employees/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
+@permission_required('employees', 'edit')
 def edit_employee(id):
     employee = Employees.query.get_or_404(id)
 
@@ -56,7 +56,7 @@ def edit_employee(id):
 
 
 @employees_bp.route('/employees/delete/<int:id>', methods=['POST'])
-@login_required
+@permission_required('employees', 'delete')
 def delete_employee(id):
     emp = Employees.query.get_or_404(id)
     db.session.delete(emp)
@@ -65,7 +65,7 @@ def delete_employee(id):
 
 
 @employees_bp.route('/employees/analytics')
-@login_required
+@permission_required('employees', 'analytics')
 def employees_analytics():
     total = Employees.query.count()
 

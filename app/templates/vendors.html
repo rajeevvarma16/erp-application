@@ -6,11 +6,15 @@
 
 
 
+{% if can('vendors', 'analytics') %}
 <a href="/vendors/analytics">View Analytics</a>
+{% endif %}
 
+{% if can('vendors', 'add') %}
 <a href="/vendors/add">
     <button>Add Vendor</button>
 </a>
+{% endif %}
 
 <table>
     <thead>
@@ -35,11 +39,15 @@
             <td>{{ vendor.category }}</td>
             <td>
 
+                {% if can('vendors', 'edit') %}
                 <a href="/vendors/edit/{{ vendor.id }}">Edit</a>
+                {% endif %}
                 
+                {% if can('vendors', 'delete') %}
                 <form action="/vendors/delete/{{ vendor.id }}" method="POST">
                     <button type="submit">X</button>
                 </form>
+                {% endif %}
 
                 
 

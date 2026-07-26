@@ -8,5 +8,5 @@ class Users(UserMixin, db.Model):
     username = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-
+    role = db.Column(db.String(20), nullable=False, default="employee", server_default="employee")
 

@@ -5,14 +5,18 @@
 {% block content %}
 <h2>Customers</h2>
 
+{% if can('customers', 'analytics') %}
 <a href="/customers/analytics">View Analytics</a>
+{% endif %}
 
 
 
 
+{% if can('customers', 'add') %}
 <a href="/customers/add">
     <button>Add Customer</button>
 </a>
+{% endif %}
 
 <br>
 
@@ -39,11 +43,15 @@
             <td>{{ cust.status }}</td>
 
             <td>
+                {% if can('customers', 'edit') %}
                 <a href="/customers/edit/{{ cust.id }}">Edit</a>
+                {% endif %}
 
+                {% if can('customers', 'delete') %}
                 <form action="/customers/delete/{{ cust.id }}" method="POST" style="display:inline;">
                     <button type="submit">X</button>
                 </form>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}

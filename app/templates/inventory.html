@@ -5,12 +5,16 @@
 {% block content %}
 <h2>Inventory</h2>
 
+{% if can('inventory', 'analytics') %}
 <a href="/inventory/analytics">View Analytics</a>
+{% endif %}
 
 
+{% if can('inventory', 'add') %}
 <a href="/inventory/add">
     <button>Add Item</button>
 </a>
+{% endif %}
 
 
 <br>
@@ -38,11 +42,15 @@
             <td>{{ item.unit }}</td>
 
             <td>
+                {% if can('inventory', 'edit') %}
                 <a href="/inventory/edit/{{ item.id }}">Edit</a>
+                {% endif %}
 
+                {% if can('inventory', 'delete') %}
                 <form action="/inventory/delete/{{ item.id }}" method="POST" style="display:inline;">
                     <button type="submit">X</button>
                 </form>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}

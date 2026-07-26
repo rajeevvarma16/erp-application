@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app import limiter, db
+from app.rbac import permission_required
 from openai import OpenAI
 from sqlalchemy import func, desc
 from app.models.inventory import Inventory
@@ -899,6 +900,7 @@ def handle_gpt_response(client: OpenAI, response):
 
 @chatbot_bp.route("/api/chatbot", methods=["POST"])
 @limiter.limit("10 per minute")
+@permission_required("chatbot", "use")
 def chatbot():
     data = request.get_json() or {}
     user_query = (data.get("query") or "").strip()

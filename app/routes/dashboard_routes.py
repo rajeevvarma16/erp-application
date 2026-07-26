@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template
-from flask_login import login_required
+from app.rbac import permission_required
 from app.models.employees import Employees
 from app.models.customers import Customers
 from app.models.vendors import Vendors
@@ -9,7 +9,7 @@ from app import db
 dashboard_bp = Blueprint('dashboard', __name__)
 
 @dashboard_bp.route('/dashboard')
-@login_required
+@permission_required('dashboard', 'view')
 def dashboard():
     emp_count = Employees.query.count()
     vendor_count = Vendors.query.count()

@@ -1,19 +1,19 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from flask_login import login_required
+from app.rbac import permission_required
 from app.models.inventory import Inventory
 from app import db
 
 inventory_bp = Blueprint('inventory', __name__)
 
 @inventory_bp.route('/inventory')
-@login_required
+@permission_required('inventory', 'view')
 def inventory():
     all_inventory = Inventory.query.all()
     return render_template('inventory.html', inventory=all_inventory)
 
 
 @inventory_bp.route('/inventory/add', methods=['GET', 'POST'])
-@login_required
+@permission_required('inventory', 'add')
 def add_inventory():
     if request.method == 'POST':
         item = Inventory(
@@ -30,7 +30,7 @@ def add_inventory():
 
 
 @inventory_bp.route('/inventory/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
+@permission_required('inventory', 'edit')
 def edit_inventory(id):
     item = Inventory.query.get_or_404(id)
 
@@ -46,7 +46,7 @@ def edit_inventory(id):
 
 
 @inventory_bp.route('/inventory/delete/<int:id>', methods=['POST'])
-@login_required
+@permission_required('inventory', 'delete')
 def delete_inventory(id):
     item = Inventory.query.get_or_404(id)
     db.session.delete(item)
@@ -55,7 +55,7 @@ def delete_inventory(id):
 
 
 @inventory_bp.route('/inventory/analytics')
-@login_required
+@permission_required('inventory', 'analytics')
 def inventory_analytics():
     total_items = Inventory.query.count()
 
