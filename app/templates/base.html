@@ -74,8 +74,21 @@
     {% if can('customers', 'view') %}
     <li><a href="{{ url_for('customers.customers') }}">Customers</a></li>
     {% endif %}
+    {% if can('users', 'view') %}
+    <li><a href="{{ url_for('users.users') }}">Users</a></li>
+    {% endif %}
     <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
   </ul>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul style="position: static; width: auto; background: transparent; display: block; margin: 16px 0; padding: 0;">
+        {% for message in messages %}
+        <li style="color: #b42318; padding: 0;">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
 
   {% block content %}{% endblock %}
 

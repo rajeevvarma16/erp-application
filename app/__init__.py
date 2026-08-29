@@ -52,6 +52,7 @@ def create_app():
     from app.routes.customers_routes import customers_bp
     from app.routes.inventory_routes import inventory_bp
     from app.routes.chatbot_routes import chatbot_bp
+    from app.routes.users_routes import users_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
@@ -61,6 +62,7 @@ def create_app():
     app.register_blueprint(customers_bp)
     app.register_blueprint(inventory_bp)
     app.register_blueprint(chatbot_bp)
+    app.register_blueprint(users_bp)
 
     @app.context_processor
     def inject_permissions():
