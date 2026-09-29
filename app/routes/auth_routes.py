@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.users import Users
 from app import db, limiter
@@ -7,7 +7,7 @@ from app import db, limiter
 # Flask-WTF
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, Email, ValidationError
+from wtforms.validators import InputRequired, Length, Email, ValidationError, EqualTo
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -34,6 +34,24 @@ class RegisterForm(FlaskForm):
         user = Users.query.filter_by(username=field.data).first()
         if user:
             raise ValidationError("Username already exists. Please choose another one.")
+
+
+class ChangePasswordForm(FlaskForm):
+    current_password = PasswordField(
+        "Current password", validators=[InputRequired()]
+    )
+    new_password = PasswordField(
+        "New password",
+        validators=[
+            InputRequired(),
+            Length(min=2, max=20),
+            EqualTo("confirm_password", message="New passwords do not match."),
+        ],
+    )
+    confirm_password = PasswordField(
+        "Confirm new password", validators=[InputRequired()]
+    )
+    submit = SubmitField("Change password")
 # ------------------------------------------------
 
 
@@ -86,5 +104,34 @@ def protected():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+
+@auth_bp.route("/change-password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+
+    if form.validate_on_submit():
+        if not check_password_hash(
+            current_user.password, form.current_password.data
+        ):
+            flash("Current password is incorrect.")
+
+        elif check_password_hash(
+            current_user.password, form.new_password.data
+        ):
+            flash("Choose a different new password.")
+
+        else:
+            current_user.password = generate_password_hash(
+                form.new_password.data,
+                method="pbkdf2:sha256",
+            )
+            db.session.commit()
+            logout_user()
+            flash("Password changed. Please log in with the new password.")
+            return redirect(url_for("auth.login"))
+
+    return render_template("change_password.html", form=form)
 
 
