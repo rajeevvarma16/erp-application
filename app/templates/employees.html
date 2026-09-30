@@ -1,72 +1,275 @@
 {% extends "base.html" %}
 
-{% block title %}Employees Management{% endblock %}
+{% block title %}Employees{% endblock %}
+{% block breadcrumb %}Employees{% endblock %}
 
 {% block content %}
-<h2>employees</h2>
+{% set show_actions = can('employees', 'edit') or can('employees', 'delete') %}
 
-{% if can('employees', 'analytics') %}
-<a href="/employees/analytics">View Analytics</a>
-{% endif %}
+<div class="employee-header">
+    <div class="employee-heading">
+        <h1>Employees</h1>
+        <p>Keep your team information in one place.</p>
+    </div>
 
+    <div class="employee-header-actions">
+        {% if can('employees', 'analytics') %}
+        <a class="erp-button"
+           href="{{ url_for('employees.employees_analytics') }}">
+            Analytics
+        </a>
+        {% endif %}
+
+        {% if can('employees', 'add') %}
+        <button class="erp-button erp-button-primary"
+                id="open-add-employee" type="button">
+            Add employee
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<section class="employee-card" aria-label="Employees">
+    <div class="employee-card-header">
+        <h2>Team directory</h2>
+        <p>Departments, joining dates, salaries, and status</p>
+    </div>
+
+    {% if employees %}
+    <div class="employee-table-wrap">
+        <table class="employee-table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Joining date</th>
+                    <th scope="col">Salary</th>
+                    <th scope="col">Status</th>
+                    {% if show_actions %}
+                    <th scope="col">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in employees %}
+                <tr>
+                    <td>{{ emp.employee_name }}</td>
+                    <td>{{ emp.department }}</td>
+                    <td>{{ emp.joining_date.strftime('%d %b, %Y') }}</td>
+                    <td class="employee-number">₹{{ emp.salary }}</td>
+                    <td>
+                        <span class="employee-status{% if emp.status == 'Active' %} is-active{% elif emp.status == 'Inactive' %} is-inactive{% endif %}">
+                            {{ emp.status }}
+                        </span>
+                    </td>
+
+                    {% if show_actions %}
+                    <td>
+                        <div class="employee-row-actions">
+                            {% if can('employees', 'edit') %}
+                            <button type="button"
+                                    class="employee-text-button js-edit-employee"
+                                    data-edit-url="{{ url_for('employees.edit_employee', id=emp.id) }}"
+                                    data-employee-name="{{ emp.employee_name }}"
+                                    data-department="{{ emp.department }}"
+                                    data-joining-date="{{ emp.joining_date.strftime('%Y-%m-%d') }}"
+                                    data-salary="{{ emp.salary }}"
+                                    data-status="{{ emp.status }}">
+                                Edit
+                            </button>
+                            {% endif %}
+
+                            {% if can('employees', 'delete') %}
+                            <button type="button"
+                                    class="employee-text-button delete js-delete-employee"
+                                    data-delete-url="{{ url_for('employees.delete_employee', id=emp.id) }}"
+                                    data-employee-name="{{ emp.employee_name }}">
+                                Delete
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="employee-empty">
+        No employees yet. Add your first employee to get started.
+    </div>
+    {% endif %}
+</section>
 
 {% if can('employees', 'add') %}
-<a href="/employees/add">
-  <button>Add Employee</button>
-</a>
+<dialog class="employee-dialog" id="add-employee-dialog">
+    <h2>Add employee</h2>
+    <p class="employee-dialog-description">Enter the employee's details.</p>
+
+    <form method="POST" action="{{ url_for('employees.add_employee') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="employee-fields">
+            <label class="employee-field full-width">
+                Name
+                <input type="text" name="employee_name" maxlength="100" required>
+            </label>
+
+            <label class="employee-field">
+                Department
+                <input type="text" name="department" maxlength="100" required>
+            </label>
+
+            <label class="employee-field">
+                Status
+                <input type="text" name="status" maxlength="20" required>
+            </label>
+
+            <label class="employee-field">
+                Salary (₹)
+                <input type="number" name="salary" min="0" step="1" required>
+            </label>
+
+            <label class="employee-field">
+                Joining date
+                <input type="date" name="joining_date" required>
+            </label>
+        </div>
+
+        <div class="employee-dialog-actions">
+            <button class="erp-button js-close-employee-dialog" type="button">
+                Cancel
+            </button>
+            <button class="erp-button erp-button-primary" type="submit">
+                Save employee
+            </button>
+        </div>
+    </form>
+</dialog>
 {% endif %}
 
-<table>
-<thead>
-    <tr>
-      <th>S.No</th>
-      <th>Name</th>
-      <th>Department</th>
-      <th>Joining Date</th>
-      <th>Salary</th>
-      <th>Status</th>
-      <th>Actions</th>
-      
-    </tr>
-</thead>
-<tbody>
-    
-    {% for emp in employees %}
-    <tr>
-        <td>{{ loop.index }}</td>
-        <td>{{ emp.employee_name }}</td>
-        <td>{{ emp.department }}</td>
-        <td>{{ emp.joining_date.strftime('%d %b, %Y') }}</td>
-        <td>{{ emp.salary }}</td>
-        <td>{{ emp.status }}</td>
+{% if can('employees', 'edit') %}
+<dialog class="employee-dialog" id="edit-employee-dialog">
+    <h2>Edit employee</h2>
+    <p class="employee-dialog-description">Update the employee's details.</p>
 
-        <!-- <td>
-          <form action="/employees/delete/{{ emp.id }}" method="POST">
-              <button type="submit">X</button>
-          </form>
+    <form id="edit-employee-form" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-      </td> -->
+        <div class="employee-fields">
+            <label class="employee-field full-width">
+                Name
+                <input type="text" name="employee_name" maxlength="100" required>
+            </label>
 
-      <td>
-        {% if can('employees', 'edit') %}
-        <a href="/employees/edit/{{ emp.id }}">Edit</a>
-        {% endif %}
-    
-        {% if can('employees', 'delete') %}
-        <form action="/employees/delete/{{ emp.id }}" method="POST" style="display:inline;">
-            <button type="submit">X</button>
-        </form>
-        {% endif %}
-    </td>
-    
+            <label class="employee-field">
+                Department
+                <input type="text" name="department" maxlength="100" required>
+            </label>
 
+            <label class="employee-field">
+                Status
+                <input type="text" name="status" maxlength="20" required>
+            </label>
 
+            <label class="employee-field">
+                Salary (₹)
+                <input type="number" name="salary" min="0" step="1" required>
+            </label>
 
-    </tr>
+            <label class="employee-field">
+                Joining date
+                <input type="date" name="joining_date" required>
+            </label>
+        </div>
 
-    {% endfor %}
-</tbody>
-  </table>
+        <div class="employee-dialog-actions">
+            <button class="erp-button js-close-employee-dialog" type="button">
+                Cancel
+            </button>
+            <button class="erp-button erp-button-primary" type="submit">
+                Save changes
+            </button>
+        </div>
+    </form>
+</dialog>
+{% endif %}
 
+{% if can('employees', 'delete') %}
+<dialog class="employee-dialog" id="delete-employee-dialog">
+    <h2>Delete employee?</h2>
+    <p class="employee-dialog-description">
+        Are you sure you want to delete
+        <strong id="delete-employee-name"></strong>?
+    </p>
 
+    <form id="delete-employee-form" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="employee-dialog-actions">
+            <button class="erp-button js-close-employee-dialog" type="button">
+                Cancel
+            </button>
+            <button class="erp-button employee-button-danger" type="submit">
+                Delete employee
+            </button>
+        </div>
+    </form>
+</dialog>
+{% endif %}
+
+<script>
+    const addEmployeeButton = document.getElementById("open-add-employee");
+    const addEmployeeDialog = document.getElementById("add-employee-dialog");
+
+    if (addEmployeeButton && addEmployeeDialog) {
+        addEmployeeButton.addEventListener("click", () => {
+            addEmployeeDialog.querySelector("form").reset();
+            addEmployeeDialog.showModal();
+        });
+    }
+
+    const editEmployeeDialog = document.getElementById("edit-employee-dialog");
+    const editEmployeeForm = document.getElementById("edit-employee-form");
+
+    if (editEmployeeDialog && editEmployeeForm) {
+        document.querySelectorAll(".js-edit-employee").forEach(button => {
+            button.addEventListener("click", () => {
+                editEmployeeForm.action = button.dataset.editUrl;
+                editEmployeeForm.elements["employee_name"].value =
+                    button.dataset.employeeName;
+                editEmployeeForm.elements["department"].value =
+                    button.dataset.department;
+                editEmployeeForm.elements["joining_date"].value =
+                    button.dataset.joiningDate;
+                editEmployeeForm.elements["salary"].value =
+                    button.dataset.salary;
+                editEmployeeForm.elements["status"].value =
+                    button.dataset.status;
+                editEmployeeDialog.showModal();
+            });
+        });
+    }
+
+    const deleteEmployeeDialog = document.getElementById("delete-employee-dialog");
+    const deleteEmployeeForm = document.getElementById("delete-employee-form");
+
+    if (deleteEmployeeDialog && deleteEmployeeForm) {
+        document.querySelectorAll(".js-delete-employee").forEach(button => {
+            button.addEventListener("click", () => {
+                deleteEmployeeForm.action = button.dataset.deleteUrl;
+                document.getElementById("delete-employee-name").textContent =
+                    button.dataset.employeeName;
+                deleteEmployeeDialog.showModal();
+            });
+        });
+    }
+
+    document.querySelectorAll(".js-close-employee-dialog").forEach(button => {
+        button.addEventListener("click", () => {
+            button.closest("dialog").close();
+        });
+    });
+</script>
 {% endblock %}

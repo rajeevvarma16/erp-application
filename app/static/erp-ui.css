@@ -131,14 +131,16 @@ body.erp-app {
 
 .home-intro h1,
 .inventory-heading h1,
-.vendor-header h1 {
+.vendor-header h1,
+.employee-heading h1 {
     margin: 0 0 7px;
     font-size: 28px;
 }
 
 .home-intro p,
 .inventory-heading p,
-.vendor-header p {
+.vendor-header p,
+.employee-heading p {
     margin: 0;
     color: #65758e;
 }
@@ -175,10 +177,11 @@ body.erp-app {
     color: #65758e;
 }
 
-/* Shared Inventory and Vendors pages */
+/* Shared Inventory, Vendors, and Employees pages */
 
 .inventory-header,
-.vendor-header {
+.vendor-header,
+.employee-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -188,7 +191,8 @@ body.erp-app {
 }
 
 .inventory-header-actions,
-.vendor-actions {
+.vendor-actions,
+.employee-header-actions {
     display: flex;
     align-items: center;
     gap: 9px;
@@ -237,7 +241,8 @@ body.erp-app {
 }
 
 .inventory-card,
-.vendor-card {
+.vendor-card,
+.employee-card {
     overflow: hidden;
     border: 1px solid #e4eaf2;
     border-radius: 12px;
@@ -245,44 +250,52 @@ body.erp-app {
 }
 
 .inventory-card-header,
-.vendor-card-heading {
+.vendor-card-heading,
+.employee-card-header {
     padding: 21px 23px;
     border-bottom: 1px solid #e4eaf2;
 }
 
 .inventory-card-header h2,
-.vendor-card-heading h2 {
+.vendor-card-heading h2,
+.employee-card-header h2 {
     margin: 0 0 5px;
     font-size: 20px;
 }
 
 .inventory-card-header p,
-.vendor-card-heading p {
+.vendor-card-heading p,
+.employee-card-header p {
     margin: 0;
     color: #65758e;
 }
 
 .inventory-table-wrap,
-.vendor-table-wrap {
+.vendor-table-wrap,
+.employee-table-wrap {
     overflow-x: auto;
 }
 
 .inventory-table,
-.vendor-table {
+.vendor-table,
+.employee-table {
     width: 100%;
     min-width: 620px;
     margin: 0;
     border-collapse: collapse;
 }
 
-.vendor-table {
+.vendor-table,
+.employee-table {
     min-width: 720px;
 }
 
 .inventory-table th,
 .inventory-table td,
 .vendor-table th,
-.vendor-table td {
+.vendor-table td,
+.employee-table th,
+.employee-table td {
     padding: 15px 19px;
     border: 0;
     border-bottom: 1px solid #e4eaf2;
@@ -291,22 +304,26 @@ body.erp-app {
 }
 
 .inventory-table th,
-.vendor-table th {
+.vendor-table th,
+.employee-table th {
     color: #65758e;
     font-weight: 600;
 }
 
 .inventory-table tr:last-child td,
-.vendor-table tr:last-child td {
+.vendor-table tr:last-child td,
+.employee-table tr:last-child td {
     border-bottom: 0;
 }
 
-.inventory-number {
+.inventory-number,
+.employee-number {
     font-variant-numeric: tabular-nums;
 }
 
 .inventory-row-actions,
-.vendor-row-actions {
+.vendor-row-actions,
+.employee-row-actions {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -314,7 +331,8 @@ body.erp-app {
 }
 
 .inventory-text-button,
-.vendor-row-actions button {
+.vendor-row-actions button,
+.employee-text-button {
     padding: 4px 0;
     border: 0;
     background: transparent;
@@ -324,17 +342,20 @@ body.erp-app {
 }
 
 .inventory-text-button.delete,
-.vendor-row-actions .delete-link {
+.vendor-row-actions .delete-link,
+.employee-text-button.delete {
     color: #a93838;
 }
 
 .inventory-text-button:hover,
-.vendor-row-actions button:hover {
+.vendor-row-actions button:hover,
+.employee-text-button:hover {
     text-decoration: underline;
 }
 
 .inventory-empty,
-.vendor-empty {
+.vendor-empty,
+.employee-empty {
     padding: 28px;
     color: #65758e;
     text-align: center;
@@ -343,7 +364,8 @@ body.erp-app {
 /* Shared dialogs */
 
 .inventory-dialog,
-.vendor-dialog {
+.vendor-dialog,
+.employee-dialog {
     width: 440px;
     max-width: calc(100% - 28px);
     max-height: calc(100vh - 48px);
@@ -355,7 +377,8 @@ body.erp-app {
     box-shadow: 0 18px 55px rgba(0, 0, 0, .18);
 }
 
-.inventory-dialog {
+.inventory-dialog,
+.employee-dialog {
     padding: 27px;
 }
 
@@ -368,36 +391,42 @@ body.erp-app {
 }
 
 .inventory-dialog::backdrop,
-.vendor-dialog::backdrop {
+.vendor-dialog::backdrop,
+.employee-dialog::backdrop {
     background: rgba(19, 31, 51, .38);
 }
 
 .inventory-dialog h2,
-.vendor-dialog h2 {
+.vendor-dialog h2,
+.employee-dialog h2 {
     margin: 0 0 5px;
     font-size: 22px;
 }
 
 .inventory-dialog-description,
-.vendor-dialog p {
+.vendor-dialog p,
+.employee-dialog-description {
     margin: 0 0 22px;
     color: #65758e;
 }
 
-.inventory-fields {
+.inventory-fields,
+.employee-fields {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
 }
 
 .inventory-field,
-.vendor-field {
+.vendor-field,
+.employee-field {
     display: grid;
     gap: 7px;
     font-weight: 600;
 }
 
-.inventory-field.full-width {
+.inventory-field.full-width,
+.employee-field.full-width {
     grid-column: 1 / -1;
 }
 
@@ -406,7 +435,8 @@ body.erp-app {
 }
 
 .inventory-field input,
-.vendor-field input {
+.vendor-field input,
+.employee-field input {
     width: 100%;
     min-width: 0;
     padding: 11px 12px;
@@ -417,7 +447,8 @@ body.erp-app {
 }
 
 .inventory-dialog-actions,
-.vendor-form-actions {
+.vendor-form-actions,
+.employee-dialog-actions {
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -463,7 +494,39 @@ body.erp-app {
 }
 
 @media (max-width: 380px) {
-    .inventory-fields {
+    .inventory-fields,
+    .employee-fields {
         grid-template-columns: 1fr;
     }
+}
+
+/* Employee status and destructive action */
+
+.employee-status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #eef2f7;
+    color: #45556b;
+    font-size: 13px;
+}
+
+.employee-status.is-active {
+    background: #e6f7ec;
+    color: #176a3d;
+}
+
+.employee-status.is-inactive {
+    background: #f1f3f6;
+    color: #536174;
+}
+
+.employee-button-danger {
+    border-color: #b42332;
+    background: #b42332;
+    color: white;
+}
+
+.employee-button-danger:hover {
+    background: #921d29;
 }
