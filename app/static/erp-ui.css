@@ -130,13 +130,15 @@ body.erp-app {
 /* Home page */
 
 .home-intro h1,
-.inventory-heading h1 {
+.inventory-heading h1,
+.vendor-header h1 {
     margin: 0 0 7px;
     font-size: 28px;
 }
 
 .home-intro p,
-.inventory-heading p {
+.inventory-heading p,
+.vendor-header p {
     margin: 0;
     color: #65758e;
 }
@@ -173,9 +175,10 @@ body.erp-app {
     color: #65758e;
 }
 
-/* Inventory page */
+/* Shared Inventory and Vendors pages */
 
-.inventory-header {
+.inventory-header,
+.vendor-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -184,20 +187,20 @@ body.erp-app {
     margin-bottom: 24px;
 }
 
-/* These two buttons stay together on the same row. */
-.inventory-header-actions {
+.inventory-header-actions,
+.vendor-actions {
     display: flex;
-    flex-wrap: nowrap;
     align-items: center;
     gap: 9px;
 }
 
-.erp-button {
+.erp-button,
+.vendor-button {
     display: inline-block;
     padding: 10px 16px;
     border: 1px solid #dce4ef;
     border-radius: 8px;
-    background: white;
+    background: #fff;
     color: #19263b;
     font: inherit;
     text-align: center;
@@ -206,65 +209,95 @@ body.erp-app {
     cursor: pointer;
 }
 
-.erp-button:hover {
+.erp-button:hover,
+.vendor-button:hover {
     background: #f3f6fb;
 }
 
-.erp-button-primary {
+.erp-button-primary,
+.vendor-button.primary {
     border-color: #275fc5;
     background: #275fc5;
-    color: white;
+    color: #fff;
 }
 
-.erp-button-primary:hover {
+.erp-button-primary:hover,
+.vendor-button.primary:hover {
     background: #1e4fa9;
 }
 
-.inventory-card {
+.vendor-button.danger {
+    border-color: #b42332;
+    background: #b42332;
+    color: #fff;
+}
+
+.vendor-button.danger:hover {
+    background: #921d29;
+}
+
+.inventory-card,
+.vendor-card {
     overflow: hidden;
     border: 1px solid #e4eaf2;
     border-radius: 12px;
-    background: white;
+    background: #fff;
 }
 
-.inventory-card-header {
+.inventory-card-header,
+.vendor-card-heading {
     padding: 21px 23px;
     border-bottom: 1px solid #e4eaf2;
 }
 
-.inventory-card-header h2 {
+.inventory-card-header h2,
+.vendor-card-heading h2 {
     margin: 0 0 5px;
     font-size: 20px;
 }
 
-.inventory-card-header p {
+.inventory-card-header p,
+.vendor-card-heading p {
     margin: 0;
     color: #65758e;
 }
 
-.inventory-table-wrap {
+.inventory-table-wrap,
+.vendor-table-wrap {
     overflow-x: auto;
 }
 
-.inventory-table {
+.inventory-table,
+.vendor-table {
     width: 100%;
     min-width: 620px;
+    margin: 0;
     border-collapse: collapse;
 }
 
+.vendor-table {
+    min-width: 720px;
+}
+
 .inventory-table th,
-.inventory-table td {
+.inventory-table td,
+.vendor-table th,
+.vendor-table td {
     padding: 15px 19px;
+    border: 0;
     border-bottom: 1px solid #e4eaf2;
+    background: #fff;
     text-align: left;
 }
 
-.inventory-table th {
+.inventory-table th,
+.vendor-table th {
     color: #65758e;
     font-weight: 600;
 }
 
-.inventory-table tr:last-child td {
+.inventory-table tr:last-child td,
+.vendor-table tr:last-child td {
     border-bottom: 0;
 }
 
@@ -272,13 +305,16 @@ body.erp-app {
     font-variant-numeric: tabular-nums;
 }
 
-.inventory-row-actions {
+.inventory-row-actions,
+.vendor-row-actions {
     display: flex;
+    align-items: center;
     gap: 12px;
     white-space: nowrap;
 }
 
-.inventory-text-button {
+.inventory-text-button,
+.vendor-row-actions button {
     padding: 4px 0;
     border: 0;
     background: transparent;
@@ -287,38 +323,63 @@ body.erp-app {
     cursor: pointer;
 }
 
-.inventory-text-button.delete {
+.inventory-text-button.delete,
+.vendor-row-actions .delete-link {
     color: #a93838;
 }
 
-.inventory-empty {
-    padding: 28px;
-    color: #65758e;
+.inventory-text-button:hover,
+.vendor-row-actions button:hover {
+    text-decoration: underline;
 }
 
-/* Add, Edit, and Delete dialogs */
+.inventory-empty,
+.vendor-empty {
+    padding: 28px;
+    color: #65758e;
+    text-align: center;
+}
 
-.inventory-dialog {
+/* Shared dialogs */
+
+.inventory-dialog,
+.vendor-dialog {
     width: 440px;
     max-width: calc(100% - 28px);
-    padding: 27px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
     border: 0;
     border-radius: 14px;
-    background: white;
+    background: #fff;
     color: #19263b;
     box-shadow: 0 18px 55px rgba(0, 0, 0, .18);
 }
 
-.inventory-dialog::backdrop {
+.inventory-dialog {
+    padding: 27px;
+}
+
+.vendor-dialog {
+    padding: 0;
+}
+
+.vendor-dialog-content {
+    padding: 27px;
+}
+
+.inventory-dialog::backdrop,
+.vendor-dialog::backdrop {
     background: rgba(19, 31, 51, .38);
 }
 
-.inventory-dialog h2 {
+.inventory-dialog h2,
+.vendor-dialog h2 {
     margin: 0 0 5px;
     font-size: 22px;
 }
 
-.inventory-dialog-description {
+.inventory-dialog-description,
+.vendor-dialog p {
     margin: 0 0 22px;
     color: #65758e;
 }
@@ -329,7 +390,8 @@ body.erp-app {
     gap: 16px;
 }
 
-.inventory-field {
+.inventory-field,
+.vendor-field {
     display: grid;
     gap: 7px;
     font-weight: 600;
@@ -339,7 +401,12 @@ body.erp-app {
     grid-column: 1 / -1;
 }
 
-.inventory-field input {
+.vendor-field {
+    margin-bottom: 16px;
+}
+
+.inventory-field input,
+.vendor-field input {
     width: 100%;
     min-width: 0;
     padding: 11px 12px;
@@ -349,9 +416,11 @@ body.erp-app {
     font-weight: normal;
 }
 
-.inventory-dialog-actions {
+.inventory-dialog-actions,
+.vendor-form-actions {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 9px;
     margin-top: 25px;
 }
