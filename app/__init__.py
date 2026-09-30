@@ -6,6 +6,8 @@ from flask_login import LoginManager, current_user
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from sqlalchemy import inspect, text
+from flask_wtf.csrf import CSRFProtect
+csrf = CSRFProtect()
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -14,6 +16,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 def create_app():
     app = Flask(__name__)
+    
 
     # Load config
     app.config.from_object('config.Config')
@@ -22,6 +25,7 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     limiter.init_app(app)
+    csrf.init_app(app)
 
     # This project uses SQLite without a migration framework. Upgrade an
     # existing users table so current installations can adopt RBAC safely.

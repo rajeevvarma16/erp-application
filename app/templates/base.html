@@ -1,164 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>{% block title %}ERP App{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <style>
-    table {
-        border-collapse: collapse;
-        width: 90%;
-        margin-top: 20px;
+    <title>{% block title %}ERP App{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='erp-ui.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+
+<body class="erp-app">
+<div class="erp-shell">
+
+    <aside class="erp-sidebar">
+        <div class="erp-brand">
+            <span class="erp-brand-mark">E</span>ERP Workspace
+        </div>
+
+        <nav class="erp-nav" aria-label="Main navigation">
+            <span class="erp-nav-label">WORKSPACE</span>
+
+            <a href="{{ url_for('auth.protected') }}"
+               class="{% if request.endpoint == 'auth.protected' %}active{% endif %}">
+                Home
+            </a>
+
+            {% if can('inventory', 'view') %}
+            <a href="{{ url_for('inventory.inventory') }}"
+               class="{% if request.blueprint == 'inventory' %}active{% endif %}">
+                Inventory
+            </a>
+            {% endif %}
+
+            {% if can('vendors', 'view') %}
+            <a href="{{ url_for('vendors.vendors') }}"
+               class="{% if request.blueprint == 'vendors' %}active{% endif %}">
+                Vendors
+            </a>
+            {% endif %}
+
+            {% if can('employees', 'view') %}
+            <a href="{{ url_for('employees.employees') }}"
+               class="{% if request.blueprint == 'employees' %}active{% endif %}">
+                Employees
+            </a>
+            {% endif %}
+
+            {% if can('customers', 'view') %}
+            <a href="{{ url_for('customers.customers') }}"
+               class="{% if request.blueprint == 'customers' %}active{% endif %}">
+                Customers
+            </a>
+            {% endif %}
+
+            {% if can('users', 'view') %}
+            <a href="{{ url_for('users.users') }}"
+               class="{% if request.blueprint == 'users' %}active{% endif %}">
+                Users
+            </a>
+            {% endif %}
+        </nav>
+
+        <div class="erp-sidebar-bottom">
+            <div class="erp-account-name">{{ current_user.username }}</div>
+            <div class="erp-account-role">
+                {{ current_user.role | capitalize }} account
+            </div>
+
+            <nav class="erp-nav" aria-label="Account">
+                <a href="{{ url_for('auth.change_password') }}">
+                    Change password
+                </a>
+
+                <a href="{{ url_for('auth.logout') }}">Log out</a>
+            </nav>
+        </div>
+    </aside>
+
+    <div class="erp-main">
+        <header class="erp-topbar">
+            <span>Operations / <strong>{% block breadcrumb %}Home{% endblock %}</strong></span>
+            <span>{{ current_user.username }}</span>
+        </header>
+
+        <main class="erp-page">
+            {% with messages = get_flashed_messages() %}
+                {% for message in messages %}
+                    <div class="erp-flash" role="status">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+{% if can('chatbot', 'use') %}
+<style>
+    #ai-button {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        display: grid;
+        place-items: center;
+        width: 60px;
+        height: 60px;
+        border: 0;
+        border-radius: 50%;
+        background: #0d6efd;
+        color: white;
+        font: inherit;
+        font-size: 22px;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, .2);
     }
 
-    th, td {
-        border: 1px solid #ccc;
-        padding: 10px;
+    #ai-chatbox {
+        position: fixed;
+        right: 20px;
+        bottom: 90px;
+        display: none;
+        flex-direction: column;
+        width: min(320px, calc(100vw - 40px));
+        height: 380px;
+        overflow: hidden;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, .25);
     }
 
-    th {
-        background-color: #333;
+    #ai-chatbox.open {
+        display: flex;
+    }
+
+    #ai-chatbox-header {
+        padding: 11px;
+        background: #0d6efd;
         color: white;
     }
 
-    tr:nth-child(even) {
-        background-color: #f7f7f7;
+    #chat-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: 11px;
     }
 
-    tr:hover { background-color: #D6EEEE; }
-
-    ul {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background-color: #333333;
-      display: flex;
-      position: fixed;
-      top: 0;
-      width: 100%;
+    #ai-controls {
+        display: flex;
+        gap: 6px;
+        padding: 10px;
     }
 
-    ul li a {
-      display: block;
-      color: white;
-      text-align: center;
-      padding: 14px 16px;
-      text-decoration: none;
+    #ai-input {
+        flex: 1;
+        min-width: 0;
+        padding: 8px;
     }
+</style>
 
-    ul li a:hover {
-      background-color: #111111;
-    }
-
-    body { margin-top: 60px; font-family: sans-serif; }
-  </style>
-
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-</head>
-
-<body>
-
-  <!-- ✅ FIXED NAVBAR WITH CORRECT BLUEPRINT ENDPOINTS -->
-  <ul>
-    <li><a href="{{ url_for('auth.protected') }}">Home</a></li>
-    {% if can('inventory', 'view') %}
-    <li><a href="{{ url_for('inventory.inventory') }}">Inventory</a></li>
-    {% endif %}
-    {% if can('vendors', 'view') %}
-    <li><a href="{{ url_for('vendors.vendors') }}">Vendors</a></li>
-    {% endif %}
-    {% if can('employees', 'view') %}
-    <li><a href="{{ url_for('employees.employees') }}">Employees</a></li>
-    {% endif %}
-    {% if can('customers', 'view') %}
-    <li><a href="{{ url_for('customers.customers') }}">Customers</a></li>
-    {% endif %}
-    {% if can('users', 'view') %}
-    <li><a href="{{ url_for('users.users') }}">Users</a></li>
-    {% endif %}
-    <li><a href="{{ url_for('auth.change_password') }}">Change Password</a></li>
-    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-  </ul>
-
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <ul style="position: static; width: auto; background: transparent; display: block; margin: 16px 0; padding: 0;">
-        {% for message in messages %}
-        <li style="color: #b42318; padding: 0;">{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-
-  {% block content %}{% endblock %}
-
-  {% if can('chatbot', 'use') %}
-  <!-- Floating AI Button -->
-  <div id="ai-button"
-    style="position: fixed; bottom: 20px; right: 20px;
-           background: #0d6efd; color: white;
-           width: 60px; height: 60px; border-radius: 50%;
-           display: flex; justify-content: center; align-items: center;
-           font-size: 24px; cursor: pointer;
-           box-shadow: 0px 4px 10px rgba(0,0,0,0.2);">
+<button id="ai-button" type="button" aria-label="Open AI assistant">
     AI
-  </div>
+</button>
 
-  <!-- Chat Popup -->
-  <div id="ai-chatbox"
-    style="position: fixed; bottom: 90px; right: 20px; width: 300px;
-           height: 380px; background: white; border-radius: 10px;
-           display: none; flex-direction: column;
-           box-shadow: 0px 4px 20px rgba(0,0,0,0.25); overflow: hidden;">
+<div id="ai-chatbox">
+    <div id="ai-chatbox-header">AI Assistant</div>
+    <div id="chat-area"></div>
 
-    <div style="background:#0d6efd; color:white; padding:10px; text-align:center;">
-      AI Assistant
+    <div id="ai-controls">
+        <input id="ai-input" placeholder="Ask..." aria-label="Message">
+        <button type="button" onclick="sendAIMessage()">Send</button>
     </div>
-
-    <div id="chat-area"
-      style="flex:1; padding:10px; overflow-y:auto; font-size:14px;">
-    </div>
-
-    <div style="padding:10px; display:flex; gap:5px;">
-      <input id="ai-input" placeholder="Ask..."
-        style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px;">
-      <button onclick="sendAIMessage()"
-        style="padding:6px 10px; background:#0d6efd; color:white; border:none; border-radius:4px;">
-        Send
-      </button>
-    </div>
-  </div>
+</div>
 
 <script>
-document.getElementById("ai-button").onclick = () => {
-  const box = document.getElementById("ai-chatbox");
-  box.style.display = (box.style.display === "none") ? "flex" : "none";
-};
+    const aiButton = document.getElementById("ai-button");
+    const aiChatbox = document.getElementById("ai-chatbox");
 
-async function sendAIMessage() {
-  const msg = document.getElementById("ai-input").value;
-  if (!msg) return;
+    aiButton.addEventListener("click", () => {
+        aiChatbox.classList.toggle("open");
+    });
 
-  document.getElementById("chat-area").innerHTML +=
-      "<p><b>You:</b> " + msg + "</p>";
+    async function sendAIMessage() {
+        const input = document.getElementById("ai-input");
+        const message = input.value.trim();
+        if (!message) return;
 
-  const res = await fetch("/api/chatbot", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query: msg })
-  });
+        const area = document.getElementById("chat-area");
 
-  const data = await res.json();
-  document.getElementById("chat-area").innerHTML +=
-      "<p><b>AI:</b> " + data.reply + "</p>";
+        function addLine(who, text) {
+            const line = document.createElement("p");
+            const label = document.createElement("strong");
 
-  document.getElementById("ai-input").value = "";
-  document.getElementById("chat-area").scrollTop =
-      document.getElementById("chat-area").scrollHeight;
-}
+            label.textContent = who + ": ";
+            line.append(label, document.createTextNode(String(text)));
+            area.appendChild(line);
+            area.scrollTop = area.scrollHeight;
+        }
+
+        addLine("You", message);
+        input.value = "";
+
+        try {
+            const response = await fetch(
+                "{{ url_for('chatbot.chatbot') }}",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": document.querySelector(
+                            'meta[name="csrf-token"]'
+                        ).content
+                    },
+                    body: JSON.stringify({ query: message })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Request failed");
+            }
+
+            const data = await response.json();
+            addLine("AI", data.reply || "No response available.");
+        } catch (error) {
+            addLine("AI", "Sorry, something went wrong.");
+        }
+    }
 </script>
-  {% endif %}
+{% endif %}
 
 </body>
 </html>

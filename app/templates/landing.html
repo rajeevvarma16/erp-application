@@ -1,15 +1,55 @@
 {% extends "base.html" %}
 
 {% block title %}Home{% endblock %}
+{% block breadcrumb %}Home{% endblock %}
 
 {% block content %}
-<h2>this is the landing page welcome Page</h2>
-<p>Welcome to the main section.</p>
+<section class="home-intro">
+    <h1>Welcome back, {{ current_user.username }}</h1>
+    <p>Choose a section to get started.</p>
+</section>
 
-{% if can('dashboard', 'view') %}
-<a href="/dashboard">Go to Analytics Dashboard</a>
-{% endif %}
+<div class="home-grid">
+    {% if can('inventory', 'view') %}
+    <a class="home-card" href="{{ url_for('inventory.inventory') }}">
+        <h2>Inventory</h2>
+        <p>View stock, add items, and update prices.</p>
+    </a>
+    {% endif %}
 
+    {% if can('vendors', 'view') %}
+    <a class="home-card" href="{{ url_for('vendors.vendors') }}">
+        <h2>Vendors</h2>
+        <p>View your vendor records.</p>
+    </a>
+    {% endif %}
 
+    {% if can('employees', 'view') %}
+    <a class="home-card" href="{{ url_for('employees.employees') }}">
+        <h2>Employees</h2>
+        <p>View employee records.</p>
+    </a>
+    {% endif %}
 
+    {% if can('customers', 'view') %}
+    <a class="home-card" href="{{ url_for('customers.customers') }}">
+        <h2>Customers</h2>
+        <p>View customer records.</p>
+    </a>
+    {% endif %}
+
+    {% if can('users', 'view') %}
+    <a class="home-card" href="{{ url_for('users.users') }}">
+        <h2>Users</h2>
+        <p>View application users.</p>
+    </a>
+    {% endif %}
+
+    {% if can('dashboard', 'view') %}
+    <a class="home-card" href="{{ url_for('dashboard.dashboard') }}">
+        <h2>Analytics dashboard</h2>
+        <p>See the overall business dashboard.</p>
+    </a>
+    {% endif %}
+</div>
 {% endblock %}

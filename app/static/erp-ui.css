@@ -1,0 +1,400 @@
+* {
+    box-sizing: border-box;
+}
+
+body.erp-app {
+    margin: 0;
+    background: #f5f7fb;
+    color: #19263b;
+    font-family: Arial, sans-serif;
+}
+
+.erp-shell {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+.erp-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 14px 20px;
+    background: #fff;
+    border-right: 1px solid #e4eaf2;
+}
+
+.erp-brand {
+    padding: 4px 10px;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+.erp-brand-mark {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    margin-right: 8px;
+    border-radius: 8px;
+    background: #275fc5;
+    color: white;
+}
+
+.erp-nav {
+    display: grid;
+    gap: 4px;
+}
+
+.erp-nav-label {
+    padding: 8px 12px;
+    color: #65758e;
+    font-size: 12px;
+}
+
+.erp-nav a,
+.erp-logout {
+    display: block;
+    width: 100%;
+    padding: 11px 12px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #52627a;
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.erp-nav a:hover,
+.erp-logout:hover {
+    background: #f2f5fa;
+}
+
+.erp-nav a.active {
+    background: #eaf1ff;
+    color: #275fc5;
+    font-weight: bold;
+}
+
+.erp-sidebar-bottom {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid #e4eaf2;
+}
+
+.erp-account-name {
+    padding: 4px 12px;
+    font-weight: bold;
+}
+
+.erp-account-role {
+    padding: 0 12px 12px;
+    color: #65758e;
+    font-size: 13px;
+}
+
+.erp-main {
+    min-width: 0;
+}
+
+.erp-topbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 30px;
+    background: white;
+    border-bottom: 1px solid #e4eaf2;
+    color: #65758e;
+}
+
+.erp-topbar strong {
+    color: #19263b;
+}
+
+.erp-page {
+    padding: 30px;
+}
+
+.erp-flash {
+    padding: 12px 15px;
+    margin-bottom: 18px;
+    border-radius: 8px;
+    background: #eaf1ff;
+    color: #244c9d;
+}
+
+/* Home page */
+
+.home-intro h1,
+.inventory-heading h1 {
+    margin: 0 0 7px;
+    font-size: 28px;
+}
+
+.home-intro p,
+.inventory-heading p {
+    margin: 0;
+    color: #65758e;
+}
+
+.home-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 16px;
+    margin-top: 26px;
+}
+
+.home-card {
+    display: block;
+    padding: 22px;
+    border: 1px solid #e4eaf2;
+    border-radius: 12px;
+    background: white;
+    color: #19263b;
+    text-decoration: none;
+}
+
+.home-card:hover {
+    border-color: #a8bde9;
+    background: #fafcff;
+}
+
+.home-card h2 {
+    margin: 0 0 8px;
+    font-size: 19px;
+}
+
+.home-card p {
+    margin: 0;
+    color: #65758e;
+}
+
+/* Inventory page */
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+/* These two buttons stay together on the same row. */
+.inventory-header-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 9px;
+}
+
+.erp-button {
+    display: inline-block;
+    padding: 10px 16px;
+    border: 1px solid #dce4ef;
+    border-radius: 8px;
+    background: white;
+    color: #19263b;
+    font: inherit;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.erp-button:hover {
+    background: #f3f6fb;
+}
+
+.erp-button-primary {
+    border-color: #275fc5;
+    background: #275fc5;
+    color: white;
+}
+
+.erp-button-primary:hover {
+    background: #1e4fa9;
+}
+
+.inventory-card {
+    overflow: hidden;
+    border: 1px solid #e4eaf2;
+    border-radius: 12px;
+    background: white;
+}
+
+.inventory-card-header {
+    padding: 21px 23px;
+    border-bottom: 1px solid #e4eaf2;
+}
+
+.inventory-card-header h2 {
+    margin: 0 0 5px;
+    font-size: 20px;
+}
+
+.inventory-card-header p {
+    margin: 0;
+    color: #65758e;
+}
+
+.inventory-table-wrap {
+    overflow-x: auto;
+}
+
+.inventory-table {
+    width: 100%;
+    min-width: 620px;
+    border-collapse: collapse;
+}
+
+.inventory-table th,
+.inventory-table td {
+    padding: 15px 19px;
+    border-bottom: 1px solid #e4eaf2;
+    text-align: left;
+}
+
+.inventory-table th {
+    color: #65758e;
+    font-weight: 600;
+}
+
+.inventory-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.inventory-number {
+    font-variant-numeric: tabular-nums;
+}
+
+.inventory-row-actions {
+    display: flex;
+    gap: 12px;
+    white-space: nowrap;
+}
+
+.inventory-text-button {
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: #275fc5;
+    font: inherit;
+    cursor: pointer;
+}
+
+.inventory-text-button.delete {
+    color: #a93838;
+}
+
+.inventory-empty {
+    padding: 28px;
+    color: #65758e;
+}
+
+/* Add, Edit, and Delete dialogs */
+
+.inventory-dialog {
+    width: 440px;
+    max-width: calc(100% - 28px);
+    padding: 27px;
+    border: 0;
+    border-radius: 14px;
+    background: white;
+    color: #19263b;
+    box-shadow: 0 18px 55px rgba(0, 0, 0, .18);
+}
+
+.inventory-dialog::backdrop {
+    background: rgba(19, 31, 51, .38);
+}
+
+.inventory-dialog h2 {
+    margin: 0 0 5px;
+    font-size: 22px;
+}
+
+.inventory-dialog-description {
+    margin: 0 0 22px;
+    color: #65758e;
+}
+
+.inventory-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.inventory-field {
+    display: grid;
+    gap: 7px;
+    font-weight: 600;
+}
+
+.inventory-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.inventory-field input {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 12px;
+    border: 1px solid #dce4ef;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: normal;
+}
+
+.inventory-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 25px;
+}
+
+@media (max-width: 700px) {
+    .erp-shell {
+        display: block;
+    }
+
+    .erp-sidebar {
+        position: static;
+        height: auto;
+        padding: 12px;
+        border-right: 0;
+        border-bottom: 1px solid #e4eaf2;
+    }
+
+    .erp-brand,
+    .erp-nav-label,
+    .erp-sidebar-bottom {
+        display: none;
+    }
+
+    .erp-nav {
+        display: flex;
+        overflow-x: auto;
+    }
+
+    .erp-nav a {
+        white-space: nowrap;
+    }
+
+    .erp-topbar {
+        padding: 15px;
+    }
+
+    .erp-page {
+        padding: 20px 15px;
+    }
+}
+
+@media (max-width: 380px) {
+    .inventory-fields {
+        grid-template-columns: 1fr;
+    }
+}

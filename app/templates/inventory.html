@@ -1,60 +1,309 @@
 {% extends "base.html" %}
 
 {% block title %}Inventory{% endblock %}
+{% block breadcrumb %}Inventory{% endblock %}
 
 {% block content %}
-<h2>Inventory</h2>
+{% set show_actions = can('inventory', 'edit') or can('inventory', 'delete') %}
 
-{% if can('inventory', 'analytics') %}
-<a href="/inventory/analytics">View Analytics</a>
-{% endif %}
+<div class="inventory-header">
+    <div class="inventory-heading">
+        <h1>Inventory</h1>
+        <p>Find and update the items you keep in stock.</p>
+    </div>
 
+    <div class="inventory-header-actions">
+        {% if can('inventory', 'analytics') %}
+        <a class="erp-button"
+           href="{{ url_for('inventory.inventory_analytics') }}">
+            Analytics
+        </a>
+        {% endif %}
+
+        {% if can('inventory', 'add') %}
+        <button class="erp-button erp-button-primary"
+                type="button"
+                id="open-add-item">
+            Add item
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<section class="inventory-card" aria-label="Inventory items">
+    <div class="inventory-card-header">
+        <h2>Items</h2>
+        <p>Current stock and prices</p>
+    </div>
+
+    {% if inventory %}
+    <div class="inventory-table-wrap">
+        <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">In stock</th>
+                    <th scope="col">Unit price</th>
+                    <th scope="col">Unit</th>
+
+                    {% if show_actions %}
+                    <th scope="col">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in inventory %}
+                <tr>
+                    <td>{{ item.item_name }}</td>
+                    <td class="inventory-number">{{ item.quantity }}</td>
+                    <td class="inventory-number">₹{{ item.price }}</td>
+                    <td>{{ item.unit }}</td>
+
+                    {% if show_actions %}
+                    <td>
+                        <div class="inventory-row-actions">
+                            {% if can('inventory', 'edit') %}
+                            <button class="inventory-text-button js-edit-item"
+                                    type="button"
+                                    data-edit-url="{{ url_for('inventory.edit_inventory', id=item.id) }}"
+                                    data-item-name="{{ item.item_name }}"
+                                    data-quantity="{{ item.quantity }}"
+                                    data-price="{{ item.price }}"
+                                    data-unit="{{ item.unit }}">
+                                Edit
+                            </button>
+                            {% endif %}
+
+                            {% if can('inventory', 'delete') %}
+                            <button class="inventory-text-button delete js-delete-item"
+                                    type="button"
+                                    data-delete-url="{{ url_for('inventory.delete_inventory', id=item.id) }}"
+                                    data-item-name="{{ item.item_name }}">
+                                Delete
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="inventory-empty">
+        No items yet. Add your first item to get started.
+    </div>
+    {% endif %}
+</section>
 
 {% if can('inventory', 'add') %}
-<a href="/inventory/add">
-    <button>Add Item</button>
-</a>
+<dialog class="inventory-dialog" id="add-item-dialog">
+    <h2>Add item</h2>
+    <p class="inventory-dialog-description">
+        Enter the details for a new inventory item.
+    </p>
+
+    <form method="POST"
+          action="{{ url_for('inventory.add_inventory') }}">
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token() }}">
+
+        <div class="inventory-fields">
+            <label class="inventory-field full-width">
+                Item name
+                <input type="text"
+                       name="item_name"
+                       maxlength="100"
+                       required>
+            </label>
+
+            <label class="inventory-field">
+                Quantity
+                <input type="number"
+                       name="quantity"
+                       min="0"
+                       step="1"
+                       required>
+            </label>
+
+            <label class="inventory-field">
+                Price (₹)
+                <input type="number"
+                       name="price"
+                       min="0"
+                       step="1"
+                       required>
+            </label>
+
+            <label class="inventory-field">
+                Unit
+                <input type="text"
+                       name="unit"
+                       maxlength="20"
+                       placeholder="e.g. bag"
+                       required>
+            </label>
+        </div>
+
+        <div class="inventory-dialog-actions">
+            <button class="erp-button js-close-dialog"
+                    type="button">
+                Cancel
+            </button>
+            <button class="erp-button erp-button-primary"
+                    type="submit">
+                Save item
+            </button>
+        </div>
+    </form>
+</dialog>
 {% endif %}
 
+{% if can('inventory', 'edit') %}
+<dialog class="inventory-dialog" id="edit-item-dialog">
+    <h2>Edit item</h2>
+    <p class="inventory-dialog-description">
+        Update this item's details.
+    </p>
 
-<br>
+    <form id="edit-item-form" method="POST">
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token() }}">
 
-<!-- Display Inventory Table -->
-<table border="1" cellpadding="8">
-    <thead>
-        <tr>
-            <th>S.No</th>
-            <th>Item Name</th>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>Unit</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
+        <div class="inventory-fields">
+            <label class="inventory-field full-width">
+                Item name
+                <input type="text"
+                       name="item_name"
+                       maxlength="100"
+                       required>
+            </label>
 
-    <tbody>
-        {% for item in inventory %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ item.item_name }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ item.price }}</td>
-            <td>{{ item.unit }}</td>
+            <label class="inventory-field">
+                Quantity
+                <input type="number"
+                       name="quantity"
+                       min="0"
+                       step="1"
+                       required>
+            </label>
 
-            <td>
-                {% if can('inventory', 'edit') %}
-                <a href="/inventory/edit/{{ item.id }}">Edit</a>
-                {% endif %}
+            <label class="inventory-field">
+                Price (₹)
+                <input type="number"
+                       name="price"
+                       min="0"
+                       step="1"
+                       required>
+            </label>
 
-                {% if can('inventory', 'delete') %}
-                <form action="/inventory/delete/{{ item.id }}" method="POST" style="display:inline;">
-                    <button type="submit">X</button>
-                </form>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            <label class="inventory-field">
+                Unit
+                <input type="text"
+                       name="unit"
+                       maxlength="20"
+                       required>
+            </label>
+        </div>
 
+        <div class="inventory-dialog-actions">
+            <button class="erp-button js-close-dialog"
+                    type="button">
+                Cancel
+            </button>
+            <button class="erp-button erp-button-primary"
+                    type="submit">
+                Save changes
+            </button>
+        </div>
+    </form>
+</dialog>
+{% endif %}
+
+{% if can('inventory', 'delete') %}
+<dialog class="inventory-dialog" id="delete-item-dialog">
+    <h2>Delete item?</h2>
+    <p class="inventory-dialog-description">
+        Are you sure you want to delete
+        <strong id="delete-item-name"></strong>?
+    </p>
+
+    <form id="delete-item-form" method="POST">
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token() }}">
+
+        <div class="inventory-dialog-actions">
+            <button class="erp-button js-close-dialog"
+                    type="button">
+                Cancel
+            </button>
+            <button class="erp-button"
+                    type="submit">
+                Delete item
+            </button>
+        </div>
+    </form>
+</dialog>
+{% endif %}
+
+<script>
+    const addButton = document.getElementById("open-add-item");
+    const addDialog = document.getElementById("add-item-dialog");
+
+    if (addButton && addDialog) {
+        addButton.addEventListener("click", () => {
+            addDialog.querySelector("form").reset();
+            addDialog.showModal();
+        });
+    }
+
+    const editDialog = document.getElementById("edit-item-dialog");
+    const editForm = document.getElementById("edit-item-form");
+
+    if (editDialog && editForm) {
+        document.querySelectorAll(".js-edit-item").forEach(button => {
+            button.addEventListener("click", () => {
+                editForm.action = button.dataset.editUrl;
+
+                editForm.elements["item_name"].value =
+                    button.dataset.itemName;
+                editForm.elements["quantity"].value =
+                    button.dataset.quantity;
+                editForm.elements["price"].value =
+                    button.dataset.price;
+                editForm.elements["unit"].value =
+                    button.dataset.unit;
+
+                editDialog.showModal();
+            });
+        });
+    }
+
+    const deleteDialog = document.getElementById("delete-item-dialog");
+    const deleteForm = document.getElementById("delete-item-form");
+
+    if (deleteDialog && deleteForm) {
+        document.querySelectorAll(".js-delete-item").forEach(button => {
+            button.addEventListener("click", () => {
+                deleteForm.action = button.dataset.deleteUrl;
+
+                document.getElementById("delete-item-name").textContent =
+                    button.dataset.itemName;
+
+                deleteDialog.showModal();
+            });
+        });
+    }
+
+    document.querySelectorAll(".js-close-dialog").forEach(button => {
+        button.addEventListener("click", () => {
+            button.closest("dialog").close();
+        });
+    });
+</script>
 {% endblock %}

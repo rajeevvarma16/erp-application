@@ -1,68 +1,330 @@
 {% extends "base.html" %}
-
 {% block title %}Vendors{% endblock %}
+{% block breadcrumb %}Vendors{% endblock %}
 
 {% block content %}
+<style>
+    .vendor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 28px;
+    }
 
+    .vendor-header h1 { margin: 0 0 6px; }
+    .vendor-header p, .vendor-card p { margin: 0; color: #64748b; }
 
+    .vendor-actions, .vendor-row-actions, .vendor-form-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-{% if can('vendors', 'analytics') %}
-<a href="/vendors/analytics">View Analytics</a>
-{% endif %}
+    .vendor-button {
+        padding: 10px 18px;
+        border: 1px solid #dbe3ef;
+        border-radius: 9px;
+        background: white;
+        color: #25344d;
+        font: inherit;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .vendor-button.primary {
+        border-color: #2b62ce;
+        background: #2b62ce;
+        color: white;
+    }
+
+    .vendor-button.danger {
+        border-color: #c53c3c;
+        background: #c53c3c;
+        color: white;
+    }
+
+    .vendor-card {
+        overflow: hidden;
+        border: 1px solid #dfe6f1;
+        border-radius: 14px;
+        background: white;
+    }
+
+    .vendor-card-heading {
+        padding: 22px 26px;
+        border-bottom: 1px solid #e5eaf2;
+    }
+
+    .vendor-card-heading h2 { margin: 0 0 5px; }
+    .vendor-table-wrap { overflow-x: auto; }
+
+    .vendor-table {
+        width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+    }
+
+    .vendor-table th, .vendor-table td {
+        padding: 17px 22px;
+        border: 0;
+        border-bottom: 1px solid #e5eaf2;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .vendor-table th {
+        background: white;
+        color: #64748b;
+    }
+
+    .vendor-table tr:last-child td { border-bottom: 0; }
+
+    .vendor-row-actions button {
+        padding: 0;
+        border: 0;
+        background: none;
+        color: #2b62ce;
+        font: inherit;
+        cursor: pointer;
+    }
+
+    .vendor-row-actions .delete-link { color: #bf3e3e; }
+    .vendor-empty { padding: 36px; color: #64748b; text-align: center; }
+
+    .vendor-dialog {
+        width: min(500px, calc(100% - 32px));
+        max-height: calc(100vh - 48px);
+        padding: 0;
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px #14243b38;
+    }
+
+    .vendor-dialog::backdrop { background: #101d35a6; }
+    .vendor-dialog-content { padding: 26px; }
+    .vendor-dialog h2 { margin: 0 0 6px; }
+    .vendor-dialog p { margin: 0 0 22px; color: #64748b; }
+
+    .vendor-field {
+        display: block;
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    .vendor-field input {
+        box-sizing: border-box;
+        display: block;
+        width: 100%;
+        margin-top: 7px;
+        padding: 11px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        font: inherit;
+        font-weight: normal;
+    }
+
+    .vendor-form-actions {
+        justify-content: flex-end;
+        margin-top: 24px;
+    }
+
+    @media (max-width: 700px) {
+        .vendor-header { flex-direction: column; }
+        .vendor-actions { flex-wrap: wrap; }
+    }
+</style>
+
+<div class="vendor-header">
+    <div>
+        <h1>Vendors</h1>
+        <p>Manage the businesses and people you buy from.</p>
+    </div>
+
+    <div class="vendor-actions">
+        {% if can('vendors', 'analytics') %}
+        <a class="vendor-button"
+           href="{{ url_for('vendors.vendors_analytics') }}">
+            Analytics
+        </a>
+        {% endif %}
+
+        {% if can('vendors', 'add') %}
+        <button class="vendor-button primary" type="button"
+                onclick="document.getElementById('add-vendor').showModal()">
+            Add vendor
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<section class="vendor-card">
+    <div class="vendor-card-heading">
+        <h2>Vendor directory</h2>
+        <p>Contact details and categories</p>
+    </div>
+
+    {% if vendors %}
+    <div class="vendor-table-wrap">
+        <table class="vendor-table">
+            <thead>
+                <tr>
+                    <!-- <th>Vendor</th> -->
+                    <th>Vendor Name</th>
+                    <th>Contact person</th>
+                    <th>Phone</th>
+                    <th>Category</th>
+                    {% if can('vendors', 'edit') or can('vendors', 'delete') %}
+                    <th>Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for vendor in vendors %}
+                <tr>
+                    <td>{{ vendor.vendor_name }}</td>
+                    <td>{{ vendor.contact_person or "—" }}</td>
+                    <td>{{ vendor.phone or "—" }}</td>
+                    <td>{{ vendor.category or "—" }}</td>
+
+                    {% if can('vendors', 'edit') or can('vendors', 'delete') %}
+                    <td>
+                        <div class="vendor-row-actions">
+                            {% if can('vendors', 'edit') %}
+                            <button type="button"
+                                    onclick="document.getElementById('edit-vendor-{{ vendor.id }}').showModal()">
+                                Edit
+                            </button>
+                            {% endif %}
+
+                            {% if can('vendors', 'delete') %}
+                            <button class="delete-link" type="button"
+                                    onclick="document.getElementById('delete-vendor-{{ vendor.id }}').showModal()">
+                                Delete
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="vendor-empty">No vendors yet. Add your first vendor.</div>
+    {% endif %}
+</section>
 
 {% if can('vendors', 'add') %}
-<a href="/vendors/add">
-    <button>Add Vendor</button>
-</a>
+<dialog id="add-vendor" class="vendor-dialog">
+    <div class="vendor-dialog-content">
+        <h2>Add vendor</h2>
+        <p>Enter the vendor's contact details.</p>
+
+        <form method="POST" action="{{ url_for('vendors.add_vendor') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <label class="vendor-field">
+                Vendor name
+                <input name="name" maxlength="100" required>
+            </label>
+
+            <label class="vendor-field">
+                Contact person
+                <input name="contact_person" maxlength="100" required>
+            </label>
+
+            <label class="vendor-field">
+                Phone
+                <input type="tel" name="phone" maxlength="20" required>
+            </label>
+
+            <label class="vendor-field">
+                Category
+                <input name="category" maxlength="100" required>
+            </label>
+
+            <div class="vendor-form-actions">
+                <button class="vendor-button" type="button"
+                        onclick="this.closest('dialog').close()">Cancel</button>
+                <button class="vendor-button primary" type="submit">
+                    Save vendor
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
 {% endif %}
 
-<table>
-    <thead>
-        <tr>
-          <th>S.No</th>
-          <th>Vendor Name</th>
-          <th>Contact Person</th>
-          <th>Phone</th>
-          <th>Category</th>
-          <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        
-        {% for vendor in vendors %}
-        <tr>
+{% for vendor in vendors %}
+    {% if can('vendors', 'edit') %}
+    <dialog id="edit-vendor-{{ vendor.id }}" class="vendor-dialog">
+        <div class="vendor-dialog-content">
+            <h2>Edit vendor</h2>
+            <p>Update {{ vendor.vendor_name }}'s details.</p>
 
-            <td>{{ loop.index }}</td>
-            <td>{{ vendor.vendor_name }}</td>
-            <td>{{ vendor.contact_person }}</td>
-            <td>{{ vendor.phone }}</td>
-            <td>{{ vendor.category }}</td>
-            <td>
+            <form method="POST"
+                  action="{{ url_for('vendors.edit_vendor', id=vendor.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-                {% if can('vendors', 'edit') %}
-                <a href="/vendors/edit/{{ vendor.id }}">Edit</a>
-                {% endif %}
-                
-                {% if can('vendors', 'delete') %}
-                <form action="/vendors/delete/{{ vendor.id }}" method="POST">
-                    <button type="submit">X</button>
-                </form>
-                {% endif %}
+                <label class="vendor-field">
+                    Vendor name
+                    <input name="name" maxlength="100"
+                           value="{{ vendor.vendor_name or '' }}" required>
+                </label>
 
-                
+                <label class="vendor-field">
+                    Contact person
+                    <input name="contact_person" maxlength="100"
+                           value="{{ vendor.contact_person or '' }}" required>
+                </label>
 
+                <label class="vendor-field">
+                    Phone
+                    <input type="tel" name="phone" maxlength="20"
+                           value="{{ vendor.phone or '' }}" required>
+                </label>
 
+                <label class="vendor-field">
+                    Category
+                    <input name="category" maxlength="100"
+                           value="{{ vendor.category or '' }}" required>
+                </label>
 
-            </td>
+                <div class="vendor-form-actions">
+                    <button class="vendor-button" type="button"
+                            onclick="this.closest('dialog').close()">Cancel</button>
+                    <button class="vendor-button primary" type="submit">
+                        Save changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+    {% endif %}
 
+    {% if can('vendors', 'delete') %}
+    <dialog id="delete-vendor-{{ vendor.id }}" class="vendor-dialog">
+        <div class="vendor-dialog-content">
+            <h2>Delete vendor?</h2>
+            <p>This will delete <strong>{{ vendor.vendor_name }}</strong>.</p>
 
+            <form method="POST"
+                  action="{{ url_for('vendors.delete_vendor', id=vendor.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-
-        </tr>
-    
-        {% endfor %}
-    </tbody>
-      </table>
-
-
+                <div class="vendor-form-actions">
+                    <button class="vendor-button" type="button"
+                            onclick="this.closest('dialog').close()">Cancel</button>
+                    <button class="vendor-button danger" type="submit">
+                        Delete vendor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+    {% endif %}
+{% endfor %}
 {% endblock %}
